@@ -1,0 +1,25 @@
+{
+	"name": "FoxCasts",
+
+	"description": "Podcast app.",
+	"version": "0.8.6",
+	"launch_path": "/index.html",
+	"icons": {
+		"256": "/assets/icon-256.png",
+		"128": "/assets/icon-128.png"
+	},
+	"developer": {
+		"name": "Garrett Downs",
+		"url": "http://github.com/choorp"
+	},
+	"type": "privileged",
+	"permissions": {
+		"audio-channel-content": {
+			"description": "Required to play audio."
+		},
+		"systemXHR": {
+			"description": "Required to download podcasts."
+		}
+	},
+	"default_locale": "en"
+}

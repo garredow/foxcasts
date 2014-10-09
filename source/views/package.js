@@ -1,0 +1,12 @@
+enyo.depends(
+	"FeedParser.js",
+	"App.js",
+	"Menu.js",
+	"MenuItem.js",
+	"SubscriptionsGrid.js",
+	"SubscriptionTIle.js",
+	"Search.js",
+	"PodcastPreview.js",
+	"PodcastDetail.js",
+	"Player.js"
+);

@@ -1,0 +1,264 @@
+/*
++    App-specific LESS/CSS would go here, but to make your
++    application easier to maintain, you should try to
++    minimize the use of custom CSS.
++*/
+
+/*
+	Put anything you reference with "url()" in ../assets/
+	This way, you can minify your application, and just remove the "source" folder for production
+*/
+
+body {
+	background: #111;
+	color: #fff;
+	font-family: Helvetica, sans-serif;
+}
+
+a {
+	color: #bbf;
+}
+
+.nice-padding {
+	padding: 15px;
+}
+
+.panels-sample-panels {
+	min-height: 320px;
+	min-width: 320px;
+}
+
+/*.panels-container > * {
+	border: 2px solid #333;
+	font-size: 5em;
+	text-align: center;
+}*/
+
+.header-bar {
+	/*padding: 5px;*/
+	/*height: 40px;*/
+	/*width: 100%;*/
+	background-color: #333;
+}
+
+.header-button {
+	height: 30px !important;
+	width: 30px;
+	background-size: 24px 24px;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+.header-button.menu {
+	background-image: url('../../assets/icons/menu-light.png');
+}
+.header-button.back {
+	background-image: url('../../assets/icons/back-light.png');
+}
+
+/* Menu */
+
+.menu-item {
+	padding: 5px 10px;
+	margin-bottom: 5px;
+	height: 40px;
+}
+
+.menu-item-icon {
+	height: 24px;
+	width: 24px;
+	background-size: contain;
+	background-position: center center;
+	background-repeat: no-repeat;
+	margin-right: 15px;
+}
+
+.menu-item-label {
+	font-size: 22px;
+}
+
+/* Subscriptions Grid */
+
+.podcast-tile {
+	display: inline-block;
+	position: relative;
+	margin: 2px 2px -2px 2px;
+	width: 32%; /* desired width */
+}
+.podcast-tile:before {
+	content: "";
+	display: block;
+	padding-top: 100%; /* initial ratio of 1:1*/
+}
+
+.podcast-tile > img {
+	position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/* Search */
+
+.search-result {
+	height: 45px;
+	margin-bottom: 10px;
+}
+
+.result-logo {
+	height: 32px;
+	width: 45px;
+	background: #aaa;
+	background-size: cover;
+	background-position: center center;
+	margin-right: 10px;
+}
+
+.result-title,
+.result-description {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.result-title {
+	font-size: 18px;
+}
+
+.result-description {
+	font-size: 15px;
+}
+
+/* Podcast Preview, Podcast Detail */
+
+.podcast-detail {
+	
+}
+
+.podcast-detail .podcast-logo {
+	width: 100%;
+}
+/*.podcast-detail .podcast-logo {
+	width: 100%;
+	height: 100px;
+	background-size: cover;
+	background-position: top;
+}*/
+.podcast-detail .podcast-title {
+	font-size: 20px;
+	font-weight: bold;
+	margin: 5px 0 0 10px;
+}
+.podcast-detail .podcast-author {
+	font-size: 14px;
+	color: #aaa;
+	margin: 0 0 10px 10px;
+}
+.podcast-detail .podcast-description {
+	margin-bottom: 20px;
+}
+
+.podcast-detail .episode-title {
+	font-size: 16px;
+}
+.podcast-detail .episode-date {
+	font-size: 14px;
+	color: #aaa;
+	margin-bottom: 10px;
+}
+
+
+/* Episode Item */
+
+.episode-item {
+	padding: 5px 10px;
+	border-bottom: 1px solid #222;
+	margin-bottom: 5px;
+
+	/*background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #222),color-stop(1, #333));
+	background-image: -moz-linear-gradient(-90deg, #222, #333);
+	background-size: 50% 100%;
+	background-repeat: no-repeat;
+	background-position: top left;*/
+}
+
+.episode-item .episode-header {
+	/*background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #222),color-stop(1, #333));
+	background-size: 0% 100%;
+	background-repeat: no-repeat;
+	background-position: top left;*/
+}
+
+.episode-item .progress {
+	font-size: 14px;
+	width: 100%;
+	text-align: center;
+	padding-top: 5px;
+}
+
+.episode-item .overflow-button {
+	position: absolute;
+	top: 3px;
+	right: 0px;
+	width: 30px;
+	height: 30px;
+	background-image: url('../../assets/icons/overflow-light.png');
+	background-size: 20px 20px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.episode-action-popup {
+	/*height: 300px;*/
+	width: 80%;
+	max-width: 500px;
+	/*padding: 5px 0;*/
+	background: #333;
+	color: #eee;
+	padding: 10px;
+	border-radius: 0px;
+	border: 0px;
+	box-shadow: none;
+}
+.episode-action-popup .popup-title {
+	font-size: 18px;
+	text-align: center;
+	margin-bottom: 15px;
+}
+.episode-action-popup .popup-button {
+	width: 100%;
+	margin-bottom: 10px;
+}
+.episode-action-popup .popup-button.last {
+	width: 100%;
+	margin-bottom: 0px;
+}
+
+/* Player */
+.player {
+	text-align: center;
+}
+.player .title {
+	font-size: 18px;
+	padding: 10px 10px;
+}
+.player .logo {
+	max-width: 100%;
+}
+
+.time-label {
+	text-size: 10px;
+	margin: 0 10px;
+	display: inline-block;
+	vertical-align: top;
+	position: absolute;
+	top: 0px;
+}
+.time-label.current {
+	left: 0px;
+	margin: 0 5px 0 10px;
+}
+.time-label.duration {
+	right: 0px;
+	margin: 0 10px 0 5px;
+}
