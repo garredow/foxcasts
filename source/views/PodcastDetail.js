@@ -30,13 +30,12 @@ enyo.kind({
 			{name: "btnStream", kind: "onyx.Button", content: "Stream", classes: "popup-button onyx-dark", ontap: "stream"},
 			{name: "btnResume", kind: "onyx.Button", content: "Resume", classes: "popup-button onyx-dark", ontap: "resume", showing: false},
 			{name: "btnDownload", kind: "onyx.Button", content: "Download", classes: "popup-button onyx-dark", ontap: "download"},
-			{name: "btnDelete", kind: "onyx.Button", content: "Delete", classes: "popup-button onyx-dark", ontap: "deleteEp", showing: false},
+			{name: "btnDelete", kind: "onyx.Button", content: "Delete", classes: "popup-button onyx-dark", ontap: "deleteEpisode", showing: false},
 			{style: "height: 20px;"},
 			{name: "btnMarkPlayed", kind: "onyx.Button", content: "Mark as Played", classes: "popup-button onyx-dark", ontap: "markEpisode"},
 			{name: "btnMarkUnplayed", kind: "onyx.Button", content: "Mark as Unplayed", classes: "popup-button last onyx-dark", ontap: "markEpisode"},
 		]}
 	],
-	db: "",
 	podcastChanged: function() {
 		// this.inherited(arguments);
 		var p = this.podcast;
@@ -45,77 +44,24 @@ enyo.kind({
 		this.$.author.setContent("by " + p.artist);
 
 		this.$.spinner.setShowing(true);
+
+		PodcastManager.getAllEpisodes(this, p.name);
+	},
+	renderEpisodes: function(episodes) {
+		// this.log(episodes);
+
 		this.$.episodes.destroyClientControls();
 
-		var request = window.indexedDB.open("MyTestDatabase1");
-		request.onerror = function(event) {
-			// Do something with request.errorCode!
-		};
-		request.onsuccess = enyo.bind(this, function(event) {
-			// console.log("PodcastDetail: DB Success");
-			this.db = request.result;
+		for (var i=0; i<episodes.length; i++) {
+			var date = new Date(episodes[i].date);
+			date = date.toDateString() + " " + date.toLocaleTimeString();
 
-			var keyRange = IDBKeyRange.lowerBound(0);
-			var trans = this.db.transaction("episodes");
-			var store = trans.objectStore("episodes");
-			var index = store.index("name");
-			// index.get(p.name).onsuccess = function(event) {
-			// 	console.log(event.target.result);
-			// };
-			var key = IDBKeyRange.only(p.name);
-			var i = 0;
-			var limit = 50; // TODO: Remove this limit
-			index.openCursor(key).onsuccess = enyo.bind(this, function(event) {
-				var cursor = event.target.result;
-				if (cursor && i < limit) {
-					// console.log(cursor.primaryKey);
-					var episode = cursor.value;
-					episode.dbKey = cursor.primaryKey;
-					this.$.episodes.createComponent({kind: "EpisodeItem", episode: episode, downloadProgress: 0, onShowPopup: "showPopup", onStreamEp: "stream", onDownloadEp: "download", onResumeEp: "resume", owner: this});
-					i++;
-					cursor.continue();
-				} else {
-					this.$.spinner.setShowing(false);
-					this.$.episodes.createComponent({kind: "onyx.Button", content: "Unsubscribe", style: "margin-top: 20px;", classes: "onyx-negative", ontap: "unsubscribe", owner: this});
-					this.$.episodes.render();
-				}
-			});
-		});
-	},
-	updateEpisodeItem: function(episode, blob) {
-		// this.log(episode);
-		if (!this.db) {
-			return;
+			this.$.episodes.createComponent({kind: "EpisodeItem", title: episodes[i].title, subTitle: date, episode: episodes[i], onShowPopup: "showPopup", onStreamEp: "stream", onDownloadEp: "download", onResumeEp: "resume", owner: this});
 		}
 
-		var store = this.db.transaction(["episodes"], "readwrite").objectStore("episodes");
-		store.get(episode.dbKey).onsuccess = enyo.bind(this, function(event) {
-			console.log(event);
-			var data = event.target.result;
-
-			if (blob) {
-				console.log("Saving blob to db.");
-				data.downloaded = "true";
-				data.localUrl = blob;
-			} else {
-				console.log("Deleting blob from db.");
-				data.downloaded = "false";
-				data.localUrl = "";
-			}
-			
-
-			var update = store.put(data, episode.dbKey);
-			update.onerror = function(event) {
-				console.log("error");
-				console.log(event);
-			};
-			update.onsuccess = enyo.bind(this, function(event) {
-				console.log("Successfully updated podcast db entry. Title = " + episode.title);
-				if (data.downloaded == "false") {
-					this.podcastChanged();
-				}
-			});
-		});
+		this.$.spinner.setShowing(false);
+		this.$.episodes.createComponent({kind: "onyx.Button", content: "Unsubscribe", style: "margin-top: 20px;", classes: "onyx-negative", ontap: "unsubscribe", owner: this});
+		this.$.episodes.render();
 	},
 	stream: function(inSender, episode) {
 		this.log(inSender);
@@ -144,50 +90,20 @@ enyo.kind({
 	},
 	download: function(inSender, episode) {
 		// this.log(inSender);
-		// this.log(episode);
 
 		if (inSender && inSender.parent.kind == "onyx.Popup") {
 			episode = this.activeEpisode.episode;
 		}
 		// this.log(episode);
 
-		var lastPercent = 0;
-		var xhr = new XMLHttpRequest({mozSystem: true});
-		xhr.onprogress = enyo.bind(this, function(response) {
-			var percent = parseInt(response.loaded / response.total * 100);
-			// We don't need to update the UI every time onprogress fires
-			if (percent >= lastPercent + 5 || percent == 100) {
-				console.log("Downloading... " + percent + "%");
-				// this.activeEpisode.applyStyle("background-size", this.downloadProgress + "% 100%");
-				this.activeEpisode.setDownloadProgress(percent);
-				lastPercent = percent;
-			}
-		});
-		xhr.onreadystatechange = enyo.bind(this, function(response) {
-			var res = response.target;
-			// console.log(res);
-			if (res.readyState == 4 && res.status == 200) {
-				// console.log(xhr);
-				console.log(response);
-				console.log("Download finished!");
-				// console.log(res.response);
-				this.activeEpisode.episode.downloaded = "true";
-				this.activeEpisode.episode.localUrl = res.response;
-				this.updateEpisodeItem(episode, res.response);
-				// this.stream("", episode);
-			}
-		});
-		xhr.open('GET', episode.fileUrl);
-		xhr.responseType = 'blob';
-		xhr.send();
-
+		DownloadManager.download(this, inSender, episode);
 		this.$.popup.hide();
 	},
-	deleteEp: function(inSender, episode) {
+	deleteEpisode: function(inSender, episode) {
 		episode = this.activeEpisode.episode;
 		this.log(episode);
 
-		this.updateEpisodeItem(episode, "");
+		PodcastManager.updateEpisode(this, "download", this.activeEpisode.episode);
 		this.$.popup.hide();
 		// this.podcastChanged();
 	},
@@ -216,90 +132,16 @@ enyo.kind({
 
 		this.$.popup.show();
 	},
-	getEpisodes: function(subscribe) {
-		
-	},
-	gotEpisodes: function(xml, subscribe) {
-		
-	},
-	subscribe: function() {
-		// this.getEpisodes(true);
-	},
 	markEpisode: function(inSender) {
-		if (!this.db) {
-			return;
-		}
-
-		var played = "false";
+		var played = false;
 		if (inSender.name == "btnMarkPlayed") {
-			played = "true";
+			played = true;
 		}
 
-		var store = this.db.transaction(["episodes"], "readwrite").objectStore("episodes");
-		store.get(this.activeEpisode.episode.dbKey).onsuccess = enyo.bind(this, function(event) {
-			var data = event.target.result;
-			data.played = played;
-
-			var update = store.put(data, this.activeEpisode.episode.dbKey);
-			update.onerror = function(event) {
-				console.log("error");
-				console.log(event);
-			};
-			update.onsuccess = enyo.bind(this, function(event) {
-				console.log("Successfully updated podcast db entry. Played = " + played);
-				this.podcastChanged();
-			});
-		});
+		PodcastManager.updateEpisode(this, "played", this.activeEpisode.episode, played);
 	},
 	unsubscribe: function() {
-		// Delete the podcast from the database
-		var trans = this.db.transaction(["podcasts"]);
-		var store = trans.objectStore("podcasts");
-		var index = store.index("name");
-		var key = IDBKeyRange.only(this.podcast.name);
-		index.getKey(this.podcast.name).onsuccess = enyo.bind(this, function(event) {
-			// console.log(event.target.result);
-
-			// TODO: Do I really need to open a new transaction?
-			var store2 = this.db.transaction(["podcasts"], "readwrite").objectStore("podcasts");
-			var request = store2.delete(event.target.result);
-			request.onerror = function(event) {
-				console.log("error");
-				console.log(event);
-			};
-			request.onsuccess = function(event) {
-				console.log("Successfully deleted podcast db entry.");
-			};
-		});
-
-		trans = null; // TODO: Do we need to do this?
-		store = null; // TODO: Do we need to do this?
-		index = null; // TODO: Do we need to do this?
-		key = null; // TODO: Do we need to do this?
-
-		// Delete all the episodes from the database
-		var trans = this.db.transaction(["episodes"], "readwrite");
-		var store = trans.objectStore("episodes");
-		var index = store.index("name");
-		var key = IDBKeyRange.only(this.podcast.name);
-		index.openCursor(key).onsuccess = enyo.bind(this, function(event) {
-			var cursor = event.target.result;
-			if (cursor) {
-				var request = store.delete(cursor.primaryKey);
-				request.onerror = function(event) {
-					console.log("Error deleting episode.");
-					console.log(event);
-				};
-				request.onsuccess = function(event) {
-					// console.log("Successfully deleted episode.");
-				};
-				cursor.continue();
-			} else {
-				console.log("Finished deleting episodes.")
-			}
-		});
-
-		this.doPodcastDeleted({command: "subscriptions"});
+		PodcastManager.unsubscribe(this, this.podcast);
 	},
 	makeTimePretty: function(totalSec) {
 		var hours = parseInt( totalSec / 3600 ) % 24;
@@ -312,63 +154,5 @@ enyo.kind({
 
 		var time = hours + ":" + minutes + ":" + seconds;
 		return time;
-	}
-});
-
-enyo.kind({
-	name: "EpisodeItem",
-	kind: "FittableRows",
-	classes: "episode-item",
-	published: {
-		episode: "",
-		downloadProgress: ""
-	},
-	events: {
-		onShowPopup: ""
-	},
-	components:[
-		{kind: "FittableColumns", components: [
-			{name: "header", kind: "FittableRows", ontap: "toggleDrawer", classes: "episode-header", style: "margin-right: 40px;", components: [
-				{name: "title", classes: "episode-title"},
-				{name: "date", classes: "episode-date"},
-			]},
-			{classes: "overflow-button", ontap: "doShowPopup"}
-		]},
-		{name: "drawer", kind: "onyx.Drawer", open: false, components: [
-			{name: "summary", allowHtml: true, content: ""}
-		]}
-	],
-	create: function() {
-		this.inherited(arguments);
-
-		var e = this.episode;
-		var date = new Date(e.date);
-		date = date.toDateString() + " " + date.toLocaleTimeString();
-		this.$.title.setContent(e.title);
-		this.$.date.setContent(date);
-
-		if (e.played == "true") {
-			this.applyStyle("opacity", .4);
-		}
-	},
-	toggleDrawer: function() {
-		if (this.$.drawer.open) {
-			this.$.drawer.setOpen(false);
-			this.applyStyle("background-color", null);
-		} else {
-			if (this.$.summary.getContent() == "") {
-				this.$.summary.setContent(this.episode.description);
-			}
-			this.$.drawer.setOpen(true);
-			this.applyStyle("background-color", "#333");
-		}
-	},
-	openMenu: function() {
-		this.$.popup.show();
-	},
-	downloadProgressChanged: function() {
-		// this.log(this.downloadProgress);
-		// this.applyStyle("background-size", this.downloadProgress + "% 100%");
-		this.$.date.setContent("Downloading... " + this.downloadProgress + "%");
 	}
 });

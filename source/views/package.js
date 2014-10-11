@@ -1,5 +1,6 @@
 enyo.depends(
 	"FeedParser.js",
+	"Services.js",
 	"App.js",
 	"Menu.js",
 	"MenuItem.js",
@@ -8,5 +9,6 @@ enyo.depends(
 	"Search.js",
 	"PodcastPreview.js",
 	"PodcastDetail.js",
+	"EpisodeItem.js",
 	"Player.js"
 );

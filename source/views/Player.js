@@ -24,7 +24,6 @@ enyo.kind({
 			{name: "timeDuration", classes: "time-label duration", content: "0:00:00"},
 		]}
 	],
-	db: "",
 	sliderManual: false,
 	lastUpdate: 0,
 	create: function() {
@@ -47,15 +46,8 @@ enyo.kind({
 			this.log("Streaming remote file.");
 			this.$.audio.setSrc(this.episode.fileUrl);
 		}
-		
 
 		this.$.audio.hasNode().mozAudioChannelType = "content";
-
-		var request = window.indexedDB.open("MyTestDatabase1");
-		request.onsuccess = enyo.bind(this, function(event) {
-			// console.log("Player: DB Success");
-			this.db = request.result;
-		});
 
 		// this.playAudio();
 	},
@@ -172,30 +164,6 @@ enyo.kind({
 		return time;
 	},
 	saveTrackPosition: function(current, duration) {
-		if (!this.db) {
-			return;
-		}
-
-		var store = this.db.transaction(["episodes"], "readwrite").objectStore("episodes");
-		store.get(this.episode.dbKey).onsuccess = enyo.bind(this, function(event) {
-			// console.log(event);
-			var data = event.target.result;
-			data.progress = current;
-			data.duration = duration;
-			if (current/duration*100 >= 95) {
-				data.played = "true";
-			} else {
-				data.played = "false";
-			}
-
-			var update = store.put(data, this.episode.dbKey);
-			update.onerror = function(event) {
-				console.log("error");
-				console.log(event);
-			};
-			update.onsuccess = function(event) {
-				console.log("Successfully updated podcast db entry. Time = " + current);
-			};
-		});
+		PodcastManager.updateEpisode(this, "progress", this.episode, {current: current, duration: duration});
 	}
 });

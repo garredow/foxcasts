@@ -1,6 +1,6 @@
 // We need this so the back button knows what to do
 var HISTORY = [0];
-var DB;
+// var DB;
 
 enyo.kind({
 	name: "FoxCasts.MainView",
@@ -18,64 +18,16 @@ enyo.kind({
 			{name: "subscriptionsGrid", kind: "SubscriptionsGrid", onOpenPodcast: "showPodcastDetail"},
 			{name: "search", kind: "Search", onShowDetail: "showAuthorDetail"},
 			{name: "podcastPreview", kind: "PodcastPreview"},
-			{name: "podcastDetail", kind: "PodcastDetail", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"}
+			{name: "podcastDetail", kind: "PodcastDetail", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"},
+			// {name: "filteredList", kind: "FilteredList", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"}
 		]}
 	],
-	db: "",
 	create: function() {
 		this.inherited(arguments);
 		this.initializeDB();
 	},
 	initializeDB: function() {
-		var request = window.indexedDB.open("MyTestDatabase1", 6);
-		request.onerror = function(event) {
-			// Do something with request.errorCode!
-		};
-		request.onsuccess = enyo.bind(this, function(event) {
-			console.log("initializeDB: Success");
-			this.db = request.result;
-			DB = request.result;
-
-			this.db.onerror = function(event) {
-			  // Generic error handler for all errors targeted at this database's
-			  // requests!
-			  console.log("Database error: " + event.target.errorCode);
-			};
-		});
-		request.onupgradeneeded = enyo.bind(this, function(event) {
-			console.log("initializeDB: onupgradeneeded");
-			this.db = event.target.result;
-
-			// Cleanse
-			var stores = this.db.objectStoreNames;
-			console.log(stores);
-			for (var i=0; i<stores.length; i++) {
-				var remove = this.db.deleteObjectStore(stores[i]);
-			}
-			// Create an objectStore for this database
-			var podcasts = this.db.createObjectStore("podcasts", {autoIncrement : true});
-			podcasts.createIndex("name", "name", {unique: true});
-			podcasts.transaction.oncomplete = function(event) {
-				// console.log(event);
-			}
-			var episodes = this.db.createObjectStore("episodes", {autoIncrement : true});
-			episodes.createIndex("name", "name", {unique: false});
-			episodes.transaction.oncomplete = function(event) {
-				// console.log(event);
-			}
-			episodes.createIndex("played", "played", {unique: false});
-			episodes.transaction.oncomplete = function(event) {
-				// console.log(event);
-			}
-			episodes.createIndex("downloaded", "downloaded", {unique: false});
-			episodes.transaction.oncomplete = function(event) {
-				// console.log(event);
-			}
-			episodes.createIndex("date", "date", {unique: false});
-			episodes.transaction.oncomplete = function(event) {
-				// console.log(event);
-			}
-		});
+		PodcastManager.initialize("MyTestDatabase1", 6);
 	},
 	manageHistory: function (action, panel) {
 		switch (action) {
@@ -173,8 +125,7 @@ enyo.kind({
 	checkForUpdates: function() {
 		var podcasts = [];
 		var keyRange = IDBKeyRange.lowerBound(0);
-		var trans = this.db.transaction("podcasts");
-		var store = trans.objectStore("podcasts");
+		var store = DB.transaction("podcasts").objectStore("podcasts");
 		store.openCursor().onsuccess = enyo.bind(this, function(event) {
 			// this.log("openCursor success");
 			// this.log(event.target.result.value);
@@ -220,7 +171,7 @@ enyo.kind({
 		this.log(episodes);
 
 		// Now let's add the new episodes to the database
-		var trans = this.db.transaction(["episodes"], "readwrite");
+		var trans = DB.transaction(["episodes"], "readwrite");
 		trans.onerror = function(event) {
 			console.log("Couldn't open a transaction.");
 			console.log(event);
@@ -234,7 +185,7 @@ enyo.kind({
 		store = null; // TODO: Do we need to do this?
 
 		// Update the podcast itself with the sate of the newest episode
-		var trans = this.db.transaction(["podcasts"], "readwrite");
+		var trans = DB.transaction(["podcasts"], "readwrite");
 		trans.onerror = function(event) {
 			console.log("Couldn't open a transaction.");
 			console.log(event);
