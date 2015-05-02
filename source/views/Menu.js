@@ -2,7 +2,6 @@ enyo.kind({
 	name: "Menu",
 	kind: "FittableRows",
 	fit: true,
-	// style: "padding: 10px;",
 	published: {
 		headerText: "FoxCasts"
 	},
@@ -11,19 +10,35 @@ enyo.kind({
 		onRefreshAll: ""
 	},
 	components:[
-		{kind: "MenuItem", icon: "subscriptions-light", label: "Subscriptions", command: "subscriptions", ontap: "doChangePanel"},
-		{kind: "MenuItem", icon: "player-light", label: "Player", command: "player", ontap: "doChangePanel"},
-		{kind: "MenuItem", icon: "search-light", label: "Search", command: "search", ontap: "doChangePanel"},
-		{kind: "MenuItem", icon: "playlists-light", label: "Playlists", command: "playlists", ontap: "doChangePanel"},
-		// {kind: "MenuItem", icon: "", label: "Downloads", command: "downloads", ontap: "doChangePanel"},
-		{fit: true},
-		// {kind: "MenuItem", icon: "", label: "Log In", command: "login", ontap: "doChangePanel"},
-		// {kind: "MenuItem", icon: "", label: "Log Out", command: "logout", ontap: "doChangePanel"},
-		{kind: "MenuItem", icon: "refresh-light", label: "Refresh All", command: "refresh-all", ontap: "doRefreshAll"},
-		{kind: "MenuItem", icon: "settings-light", label: "Settings", command: "settings", ontap: "doChangePanel"},
+		{kind: "enyo.Scroller", fit: true, thumb: false, components: [
+			{kind: "MenuItem", icon: "subscriptions", label: "Subscriptions", command: "subscriptions", ontap: "changePanel"},
+			{kind: "MenuItem", icon: "player", label: "Player", command: "player", ontap: "changePanel"},
+			{kind: "MenuItem", icon: "search", label: "Search", command: "search", ontap: "changePanel"},
+			{classes: "menu-divider", content: "Lists"},
+			{kind: "MenuItem", icon: "playlists", label: "Most Recent", command: "filter-recent", ontap: "changePanel"},
+			{kind: "MenuItem", icon: "playlists", label: "In Progress", command: "filter-inprogress", ontap: "changePanel"},
+			{kind: "MenuItem", icon: "playlists", label: "Downloaded", command: "filter-downloaded", ontap: "changePanel"},
+			{classes: "menu-divider", content: "System"},
+			{name: "btnRefresh", kind: "MenuItem", icon: "refresh", label: "Refresh All", command: "refresh-all", ontap: "doRefreshAll"},
+			{kind: "MenuItem", icon: "settings", label: "Settings", command: "settings", ontap: "changePanel"},
+		]},
+		{style: "height: 1px;"},
+		
+		{kind: "Signals", onPodcastsUpdateStart: "podcastsUpdateStart", onPodcastsUpdateProgress: "podcastsUpdateProgress", onPodcastsUpdated: "podcastsUpdated"}
 	],
 	create: function() {
 		this.inherited(arguments);
-		
+	},
+	changePanel: function(inSender) {
+		this.doChangePanel({command: inSender.command});
+	},
+	podcastsUpdateStart: function(inSender, inEvent) {
+		this.$.btnRefresh.setLabel("Updating " + inEvent.status);
+	},
+	podcastsUpdateProgress: function(inSender, inEvent) {
+		this.$.btnRefresh.setLabel("Updating " + inEvent.status);
+	},
+	podcastsUpdated: function(inSender, inEvent) {
+		this.$.btnRefresh.setLabel("Refresh All");
 	}
 });

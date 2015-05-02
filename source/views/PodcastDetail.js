@@ -17,15 +17,15 @@ enyo.kind({
 	components:[
 		{kind: "enyo.Scroller", fit: true, touch: true, thumb: false, components: [
 			{name: "logo", kind: "Image", classes: "podcast-logo", ontap: "openPopup"},
-			{name: "title", classes: "podcast-title"},
+			{name: "title", classes: "podcast-title", ontap: ""},
 			{name: "author", classes: "podcast-author"},
 			{name: "description", classes: "podcast-description"},
 			{name: "spinnerContainer", style: "text-align: center;", components: [
 				{kind: "onyx.Spinner", showing: true},
 			]},
-			{name: "episodes"}
+			{name: "episodes", style: "text-align: center;"}
 		]},
-		{kind: "onyx.Popup", classes: "episode-action-popup", centered: true, modal: true, floating: false, scrim: false, onShow: "popupShown", onHide: "popupHidden", components: [
+		{kind: "onyx.Popup", classes: "episode-action-popup", centered: true, modal: true, floating: true, scrim: true, onShow: "popupShown", onHide: "popupHidden", components: [
 			{name: "episodeTitle", classes: "popup-title"},
 			{name: "btnStream", kind: "onyx.Button", content: "Stream", classes: "popup-button onyx-dark", ontap: "stream"},
 			{name: "btnResume", kind: "onyx.Button", content: "Resume", classes: "popup-button onyx-dark", ontap: "resume", showing: false},
@@ -36,6 +36,10 @@ enyo.kind({
 			{name: "btnMarkUnplayed", kind: "onyx.Button", content: "Mark as Unplayed", classes: "popup-button last onyx-dark", ontap: "markEpisode"},
 		]}
 	],
+	workingEpisode: {},
+	refreshList: function() {
+		// this.podcastChanged();
+	},
 	podcastChanged: function() {
 		// this.inherited(arguments);
 		var p = this.podcast;
@@ -43,14 +47,17 @@ enyo.kind({
 		this.$.title.setContent(p.name);
 		this.$.author.setContent("by " + p.artist);
 
+		this.$.scroller.scrollToTop();
+		this.$.episodes.destroyClientControls();
 		this.$.spinner.setShowing(true);
 
 		PodcastManager.getAllEpisodes(this, p.name);
 	},
+	checkForNewEpisodes: function() {
+		PodcastManager.requestPodcastRefresh(this, this.podcast);
+	},
 	renderEpisodes: function(episodes) {
 		// this.log(episodes);
-
-		this.$.episodes.destroyClientControls();
 
 		for (var i=0; i<episodes.length; i++) {
 			var date = new Date(episodes[i].date);
@@ -60,52 +67,48 @@ enyo.kind({
 		}
 
 		this.$.spinner.setShowing(false);
-		this.$.episodes.createComponent({kind: "onyx.Button", content: "Unsubscribe", style: "margin-top: 20px;", classes: "onyx-negative", ontap: "unsubscribe", owner: this});
+		this.$.episodes.createComponent({kind: "onyx.Button", content: "Unsubscribe", style: "margin: 20px 10px 10px 0;", classes: "onyx-negative", ontap: "unsubscribe", owner: this});
+		this.$.episodes.createComponent({kind: "onyx.Button", content: "Refresh", style: "margin: 20px 0 10px 0;", classes: "onyx-dark", ontap: "checkForNewEpisodes", owner: this});
 		this.$.episodes.render();
 	},
 	stream: function(inSender, episode) {
-		this.log(inSender);
-		// this.log(inEvent);
-		// this.log(episode);
-		if (inSender && inSender.parent.kind == "onyx.Popup") {
-			episode = this.activeEpisode.episode;
-		}
+		var working = this.findWorkingEpisode();
 
-		episode.logo100 = this.podcast.logo100;
-		episode.logo600 = this.podcast.logo600;
-		this.doStream(episode);
-		// this.activePodcast = inSender.episode;
+		this.doStream(working.episode);
+		this.$.popup.hide();
 	},
 	resume: function(inSender, episode) {
-		// this.log(inSender);
-		// this.log(inEvent);
-		// this.log(episode);
-		if (inSender.parent.kind == "onyx.Popup") {
-			episode = this.activeEpisode.episode;
-		}
-		episode.logo100 = this.podcast.logo100;
-		episode.logo600 = this.podcast.logo600;
-		this.doResume(episode);
-		// this.activePodcast = inSender.episode;
+		var working = this.findWorkingEpisode();
+
+		this.doResume(working.episode);
+		this.$.popup.hide();
 	},
 	download: function(inSender, episode) {
-		// this.log(inSender);
+		var working = this.findWorkingEpisode();
 
-		if (inSender && inSender.parent.kind == "onyx.Popup") {
-			episode = this.activeEpisode.episode;
-		}
-		// this.log(episode);
-
-		DownloadManager.download(this, inSender, episode);
+		DownloadManager.download(this, working);
 		this.$.popup.hide();
 	},
 	deleteEpisode: function(inSender, episode) {
-		episode = this.activeEpisode.episode;
-		this.log(episode);
+		var working = this.findWorkingEpisode();
 
-		PodcastManager.updateEpisode(this, "download", this.activeEpisode.episode);
+		StorageManager.delete(this, working);
 		this.$.popup.hide();
-		// this.podcastChanged();
+	},
+	markEpisode: function(inSender) {
+		var played = (inSender.name == "btnMarkPlayed") ? true : false;
+		var working = this.findWorkingEpisode();
+
+		PodcastManager.updateEpisode(this, "played", working, played);
+		this.$.popup.hide();
+	},
+	findWorkingEpisode: function() {
+		var e = {
+			name: this.activeEpisode.name,
+			episode: this.activeEpisode.episode
+		};
+
+		return(e);
 	},
 	showPopup: function(inSender, inEvent) {
 		this.activeEpisode = inSender;
@@ -131,14 +134,6 @@ enyo.kind({
 		}
 
 		this.$.popup.show();
-	},
-	markEpisode: function(inSender) {
-		var played = false;
-		if (inSender.name == "btnMarkPlayed") {
-			played = true;
-		}
-
-		PodcastManager.updateEpisode(this, "played", this.activeEpisode.episode, played);
 	},
 	unsubscribe: function() {
 		PodcastManager.unsubscribe(this, this.podcast);

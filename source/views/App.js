@@ -1,33 +1,50 @@
 // We need this so the back button knows what to do
-var HISTORY = [0];
-// var DB;
+var HISTORY = [1];
+var PREFS = {};
 
 enyo.kind({
 	name: "FoxCasts.MainView",
 	kind: "FittableRows",
 	fit: true,
 	components:[
-		{kind: "onyx.Toolbar", classes: "header-bar", layoutKind:"FittableColumnsLayout", components: [
-			{name: "btnMenu", classes: "header-button menu", ontap: "changePanel"},
-			{name: "headerTitle", content: "FoxCasts", fit: true},
-			{name: "btnBack", classes: "header-button back", ontap: "changePanel"}
+		{kind: "Panels", name: "menuSlider", fit:true, classes: "", arrangerKind: "CarouselArranger", index: 1, draggable: true, narrowFit: false, onTransitionFinish: "", components: [
+			{name: "menu", kind: "Menu", style: "width: 80vw;", onChangePanel: "changePanel", onRefreshAll: "checkForUpdates"},
+			{kind: "Panels", fit:true, classes: "panels-container", arrangerKind: "CardArranger", index: 1, draggable: false, onTransitionFinish: "panelChanged", components: [
+				{name: "player", kind: "Player"},
+				{name: "subscriptionsGrid", kind: "SubscriptionsGrid", onOpenPodcast: "showPodcastDetail"},
+				{name: "search", kind: "Search", onShowDetail: "showAuthorDetail"},
+				{name: "podcastPreview", kind: "PodcastPreview"},
+				{name: "podcastDetail", kind: "PodcastDetail", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"},
+				{name: "filteredList", kind: "FilteredList", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"},
+				{name: "settings", kind: "Settings"}
+			]}
 		]},
-		{kind: "Panels", fit:true, classes: "panels-container", arrangerKind: "CardArranger", index: 0, draggable: false, onTransitionFinish: "panelChanged", components: [
-			{name: "menu", kind: "Menu", onChangePanel: "changePanel", onRefreshAll: "checkForUpdates"},
-			{name: "player", kind: "Player"},
-			{name: "subscriptionsGrid", kind: "SubscriptionsGrid", onOpenPodcast: "showPodcastDetail"},
-			{name: "search", kind: "Search", onShowDetail: "showAuthorDetail"},
-			{name: "podcastPreview", kind: "PodcastPreview"},
-			{name: "podcastDetail", kind: "PodcastDetail", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"},
-			// {name: "filteredList", kind: "FilteredList", onStream: "streamEpisode", onResume: "resumeEpisode", onPodcastDeleted: "changePanel"}
-		]}
+		{kind: "onyx.Toolbar", classes: "header-bar", layoutKind:"FittableColumnsLayout", components: [
+			{name: "btnMenu", kind: "HeaderButton", icon: "menu", ontap: "changePanel"},
+			{name: "headerTitle", content: "Subscriptions", style: "text-align: center; padding-top: 10px;", fit: true, ontap: "checkStorage"},
+			{name: "btnBack", kind: "HeaderButton", icon: "back", ontap: "changePanel"}
+		]},
 	],
 	create: function() {
 		this.inherited(arguments);
-		this.initializeDB();
+		this.$.menuSlider.getAnimator().setDuration(200);
+		// this.initializeDB();
+		console.log(enyo.platform);
+		if (enyo.platform.webos) {
+			console.log("Platform: " + "webOS detected.");
+			PalmSystem.stageReady();
+			this.initializeDB();
+		} else {
+			this.initializeDB();
+		}
 	},
 	initializeDB: function() {
-		PodcastManager.initialize("MyTestDatabase1", 6);
+		PodcastManager.initialize("Database_Production", 1);
+	},
+	checkStorage: function() {
+		var store = navigator.getDeviceStorage("music");
+		// var store = navigator.getDeviceStorages("music");
+		this.log(store);
 	},
 	manageHistory: function (action, panel) {
 		switch (action) {
@@ -58,12 +75,20 @@ enyo.kind({
 
 		switch (command) {
 			case "btnMenu":
-				this.$.panels.setIndex(0);
+				if (this.$.menuSlider.getIndex() == 0) {
+					this.$.menuSlider.setIndex(1);
+				} else {
+					this.$.menuSlider.setIndex(0);
+				}
 				break;
 			case "btnBack":
-				if (HISTORY.length > 1) {
-					this.$.panels.setIndex(HISTORY[HISTORY.length-2]);
-					this.manageHistory("remove", "last");
+				if (this.$.menuSlider.getIndex() == 0) {
+					this.$.menuSlider.setIndex(1);
+				} else {
+					if (HISTORY.length > 1) {
+						this.$.panels.setIndex(HISTORY[HISTORY.length-2]);
+						this.manageHistory("remove", "last");
+					}
 				}
 				break;
 			// case "subscriptionsGrid":
@@ -72,35 +97,68 @@ enyo.kind({
 			// 	this.$.podcastDetail.refresh();
 			// 	break;
 			case "player":
-				this.$.panels.setIndex(1);
+				this.$.panels.setIndex(0);
 				break;
 			case "subscriptions":
-				this.$.panels.setIndex(2);
+				this.$.panels.setIndex(1);
 				break;
 			case "search":
-				this.$.panels.setIndex(3);
+				this.$.panels.setIndex(2);
 				this.$.search.focusSearchBox();
 				break;
 			case "podcast-preview":
-				this.$.panels.setIndex(4);
+				this.$.panels.setIndex(3);
 				break;
 			case "podcast-detail":
+				this.$.panels.setIndex(4);
+				break;
+			case "filter-recent":
+				this.$.filteredList.setFilter("recent");
+				this.$.filteredList.refreshList();
 				this.$.panels.setIndex(5);
 				break;
-		}
-	},
-	panelChanged: function(inSender, inEvent) {
-		var title = this.$.panels.getActive().getHeaderText();
-		if (title) {
-			this.$.headerTitle.setContent(title);
+			case "filter-inprogress":
+				this.$.filteredList.setFilter("inprogress");
+				this.$.filteredList.refreshList();
+				this.$.panels.setIndex(5);
+				break;
+			case "filter-downloaded":
+				this.$.filteredList.setFilter("downloaded");
+				this.$.filteredList.refreshList();
+				this.$.panels.setIndex(5);
+				break;
+			case "settings":
+				this.$.panels.setIndex(6);
+				break;
 		}
 
-		if (inEvent.toIndex == 2 && inEvent.fromIndex != 2) {
+		if (inSender.name == "menu") {
+			this.$.menuSlider.setIndex(1);
+		}
+
+		this.updateHeaderTitle();
+	},
+	panelChanged: function(inSender, inEvent) {
+		this.updateHeaderTitle();
+
+		// If we're going to SubscriptionGrid, refresh the podcasts
+		if (inEvent.toIndex == 1 && inEvent.fromIndex != 1) {
 			this.$.subscriptionsGrid.updateList();
+		}
+
+		// If we're going from PodcastPreview to Search, clean up PodcastPreview
+		if (inEvent.toIndex == 2 && inEvent.fromIndex == 3) {
+			this.$.podcastPreview.cleanup();
 		}
 
 		// Update history
 		this.manageHistory("add", inEvent.toIndex);
+	},
+	updateHeaderTitle: function() {
+		var title = this.$.panels.getActive().getHeaderText();
+		if (title) {
+			this.$.headerTitle.setContent(title);
+		}
 	},
 	showAuthorDetail: function(inSender, podcast) {
 		this.$.podcastPreview.setPodcast(podcast);
@@ -127,90 +185,51 @@ enyo.kind({
 		var keyRange = IDBKeyRange.lowerBound(0);
 		var store = DB.transaction("podcasts").objectStore("podcasts");
 		store.openCursor().onsuccess = enyo.bind(this, function(event) {
-			// this.log("openCursor success");
-			// this.log(event.target.result.value);
 			var cursor = event.target.result;
 			if (cursor) {
-				// this.log(event.target.result.value);
 				podcasts.push(event.target.result.value);
-				// this.log(podcasts);
 				cursor.continue();
 			} else {
-				// this.log(podcasts);
-				this.startUpdates(podcasts);
+				PodcastManager.updateAllPodcasts(null, podcasts);
 			}
 		});
 	},
-	startUpdates: function(p) {
-		// this.log(p);
-		var xmlhttp = new XMLHttpRequest({mozSystem: true});
-		xmlhttp.open("GET", p[0].feedUrl, true);
-		xmlhttp.responseType = "xml";
-		xmlhttp.onreadystatechange = enyo.bind(this, function(response) {
-			// this.log(response);
-			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-		        var parser = new DOMParser();
-				var xml = parser.parseFromString(xmlhttp.response, "text/xml");
-		        this.gotEpisodes(xml, p[0]);
-		    }
-		});
-		xmlhttp.send();
+});
+
+enyo.kind({
+	name: "HeaderButton",
+	kind: "FittableColumns",
+	classes: "header-button",
+	published: {
+		icon: ""
 	},
-	gotEpisodes: function(xml, podcast) {
-		this.log("Refreshing feed: " + podcast.name);
-		var items = xml.getElementsByTagName("item");
-		var episodes = ParseFeed(xml, podcast, podcast.latest);
-
-		// No new episodes
-		if (episodes.length === 0) {
-			this.log("No new episodes...");
-			return;
+	handlers: {
+		onmousedown: "highlight",
+		ontouchstart: "highlight",
+		ontouchenter: "highlight",
+		ontouchend: "removeHighlight",
+		ontouchleave: "removeHighlight",
+		onmouseup: "removeHighlight",
+		onmouseout: "removeHighlight"
+	},
+	create: function() {
+		this.inherited(arguments);
+		switch (this.icon) {
+			case "menu":
+				this.addRemoveClass("menu", true);
+				break;
+			case "back":
+				this.addRemoveClass("back", true);
+				break;
 		}
-		
-		this.log("Found new episodes!");
-		this.log(episodes);
-
-		// Now let's add the new episodes to the database
-		var trans = DB.transaction(["episodes"], "readwrite");
-		trans.onerror = function(event) {
-			console.log("Couldn't open a transaction.");
-			console.log(event);
-		};
-		var store = trans.objectStore("episodes");
-		for (i=0; i<episodes.length; i++) {
-			store.add(episodes[i]);
-		}
-
-		trans = null; // TODO: Do we need to do this?
-		store = null; // TODO: Do we need to do this?
-
-		// Update the podcast itself with the sate of the newest episode
-		var trans = DB.transaction(["podcasts"], "readwrite");
-		trans.onerror = function(event) {
-			console.log("Couldn't open a transaction.");
-			console.log(event);
-		};
-		var store = trans.objectStore("podcasts");
-		var index = store.index("name");
-		var key = IDBKeyRange.only(podcast.name);
-		index.openCursor(key).onsuccess = enyo.bind(this, function(event) {
-			var cursor = event.target.result;
-			if (cursor) {
-				this.log(cursor);
-
-				var data = cursor.value;
-				data.latest = episodes[0].date;
-				var requestUpdate = store.put(data, cursor.primaryKey);
-				requestUpdate.onerror = function(event) {
-					console.log("error");
-					console.log(event);
-				};
-				requestUpdate.onsuccess = function(event) {
-					console.log("Successfully updated podcast db entry.");
-				};
-
-				cursor.continue();
-			}
-		});
+	},
+	labelChanged: function() {
+		this.$.label.setContent(this.label);
+	},
+	highlight: function(e) {
+		this.addRemoveClass("highlight-primary-item", true);
+	},
+	removeHighlight: function(e) {
+		this.addRemoveClass("highlight-primary-item", false);
 	}
 });

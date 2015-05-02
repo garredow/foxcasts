@@ -9,18 +9,32 @@
 	This way, you can minify your application, and just remove the "source" folder for production
 */
 
+@accent: #ec5817;
+@background: #111;
+@textColor1: #fff;
+@textColor2: #ccc;
+@textColor3: #aaa;
+
 body {
-	background: #111;
+	background: @background;
 	color: #fff;
 	font-family: Helvetica, sans-serif;
+	font-weight: 300;
 }
 
 a {
 	color: #bbf;
 }
 
-.nice-padding {
-	padding: 15px;
+.highlight-primary-item {
+	background: @accent;
+}
+.highlight-secondary-item {
+	background: #333;
+}
+
+.enyo-scrim {
+	z-index: 1 !important;
 }
 
 .panels-sample-panels {
@@ -28,39 +42,56 @@ a {
 	min-width: 320px;
 }
 
-/*.panels-container > * {
-	border: 2px solid #333;
-	font-size: 5em;
-	text-align: center;
-}*/
-
 .header-bar {
-	/*padding: 5px;*/
-	/*height: 40px;*/
-	/*width: 100%;*/
-	background-color: #333;
+	height: 50px;
+	background: none;
+	border: none;
+	border-top: 2px solid @accent;
+	background-color: @background;
+	padding: 0px;
 }
 
 .header-button {
-	height: 30px !important;
-	width: 30px;
+	height: 50px !important;
+	width: 50px;
 	background-size: 24px 24px;
 	background-position: center center;
 	background-repeat: no-repeat;
+
+	/*opacity: 0;*/
 }
 .header-button.menu {
 	background-image: url('../../assets/icons/menu-light.png');
+	margin-left: 0px;
 }
 .header-button.back {
 	background-image: url('../../assets/icons/back-light.png');
+	margin-right: 0px;
 }
+
+.empty-list-text {
+	color: @textColor2;
+	text-align: center;
+	margin: 20px 20px 0 20px;
+}
+
 
 /* Menu */
 
+
 .menu-item {
 	padding: 5px 10px;
-	margin-bottom: 5px;
+	// margin-bottom: 5px;
 	height: 40px;
+}
+
+.menu-divider {
+	margin: 10px 5px 5px 5px;
+	padding: 5px;
+	font-size: 20px;
+	font-weight: 400;
+	color: @accent;
+	// border-bottom: 1px solid #666;
 }
 
 .menu-item-icon {
@@ -72,11 +103,33 @@ a {
 	margin-right: 15px;
 }
 
-.menu-item-label {
-	font-size: 22px;
+.menu-item-icon.subscriptions {
+	background-image: url('../../assets/icons/subscriptions-light.png');
+}
+.menu-item-icon.player {
+	background-image: url('../../assets/icons/player-light.png');
+}
+.menu-item-icon.search {
+	background-image: url('../../assets/icons/search-light.png');
+}
+.menu-item-icon.playlists {
+	background-image: url('../../assets/icons/playlists-light.png');
+}
+.menu-item-icon.refresh {
+	background-image: url('../../assets/icons/refresh-light.png');
+}
+.menu-item-icon.settings {
+	background-image: url('../../assets/icons/settings-light.png');
 }
 
+.menu-item-label {
+	padding-top: 8px;
+	font-size: 20px;
+}
+
+
 /* Subscriptions Grid */
+
 
 .podcast-tile {
 	display: inline-block;
@@ -98,11 +151,15 @@ a {
     right: 0;
 }
 
+
 /* Search */
+
 
 .search-result {
 	height: 45px;
-	margin-bottom: 10px;
+	/*margin-bottom: 10px;*/
+	max-width: 100%;
+	padding: 5px 10px;
 }
 
 .result-logo {
@@ -115,7 +172,7 @@ a {
 }
 
 .result-title,
-.result-description {
+.result-author {
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -125,11 +182,15 @@ a {
 	font-size: 18px;
 }
 
-.result-description {
+.result-author {
 	font-size: 15px;
+	color: @textColor3;
+
 }
 
+
 /* Podcast Preview, Podcast Detail */
+
 
 .podcast-detail {
 	
@@ -138,12 +199,6 @@ a {
 .podcast-detail .podcast-logo {
 	width: 100%;
 }
-/*.podcast-detail .podcast-logo {
-	width: 100%;
-	height: 100px;
-	background-size: cover;
-	background-position: top;
-}*/
 .podcast-detail .podcast-title {
 	font-size: 20px;
 	font-weight: bold;
@@ -158,28 +213,22 @@ a {
 	margin-bottom: 20px;
 }
 
-
+.subscribe-button {
+	background-color: #555656;
+	color: #F2F2F2;
+}
 
 
 /* Episode Item */
 
-.episode-item {
-	padding: 5px 10px;
-	border-bottom: 1px solid #222;
-	margin-bottom: 5px;
 
-	/*background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #222),color-stop(1, #333));
-	background-image: -moz-linear-gradient(-90deg, #222, #333);
-	background-size: 50% 100%;
-	background-repeat: no-repeat;
-	background-position: top left;*/
+.episode-item {
+	padding: 7px 10px;
+	border-bottom: 1px solid #222;
 }
 
 .episode-item .episode-header {
-	/*background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #222),color-stop(1, #333));
-	background-size: 0% 100%;
-	background-repeat: no-repeat;
-	background-position: top left;*/
+	
 }
 
 .episode-item  .line1 {
@@ -188,7 +237,6 @@ a {
 .episode-item  .line2 {
 	font-size: 15px;
 	color: #aaa;
-	/*margin-bottom: 10px;*/
 }
 
 .episode-item .icon-downloaded {
@@ -238,10 +286,13 @@ a {
 }
 .episode-action-popup .popup-button.last {
 	width: 100%;
-	margin-bottom: 0px;
+	margin-bottom: 0;
 }
 
+
 /* Player */
+
+
 .player {
 	text-align: center;
 }
@@ -250,7 +301,9 @@ a {
 	padding: 10px 10px;
 }
 .player .logo {
-	max-width: 100%;
+	background-size: contain;
+	background-position: center center;
+	background-repeat: no-repeat;
 }
 
 .time-label {
@@ -268,4 +321,76 @@ a {
 .time-label.duration {
 	right: 0px;
 	margin: 0 10px 0 5px;
+}
+
+.cover-play {
+	// border: 1px solid #f00;
+	height: 50%;
+	width: 100%;
+}
+.cover-rewind,
+.cover-forward {
+	// border: 1px solid #f00;
+	width: 50%;
+	height: 50%;
+}
+
+.playback-button {
+	height: 40px !important;
+	width: 40px;
+	background-size: contain;
+	background-position: center center;
+	background-repeat: no-repeat;
+	// background-color: #ccc;
+}
+.playback-button.rewind {
+	background-image: url("../../assets/icons/rewind_white.png");
+}
+.playback-button.play {
+	background-image: url("../../assets/icons/play_white.png");
+	margin: 0 20px;
+}
+.playback-button.pause {
+	background-image: url("../../assets/icons/pause_white.png");
+	margin: 0 20px;
+}
+.playback-button.forward {
+	background-image: url("../../assets/icons/forward_white.png");
+}
+
+
+/* Settings */
+
+
+.settings-row {
+	padding: 10px 10px;
+	border-bottom: 1px solid rgba(100,100,100,.35);
+}
+.settings-row .label {
+	font-size: 16px;
+	padding: 7px 0;
+}
+
+.setting-description {
+	color: @textColor2;
+	padding-top: 10px;
+	padding-left: 10px;
+	font-size: 15px;
+	// font-weight: 400;
+}
+
+.custom-picker {
+	width: 100px;
+	color: #fff;
+	font-size: 16px;
+	text-align: right;
+	margin: 0;
+	padding: 7px 15px 7px 15px !important;
+	
+	background: url("../../assets/picker-arrow.png") bottom right no-repeat;
+	background-size: 10px;
+	box-shadow: none;
+
+	border-radius: 2px;
+	border: none !important;
 }

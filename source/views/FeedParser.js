@@ -10,12 +10,14 @@ var ParseFeed = function(xml, podcast, dateLimit) {
 
 	for (var i=0; i< items.length; i++) {
 		var e = items[i];
+		// console.log(e);
 
 		var date, author, title, description, abort;
 		try {
 			date = e.getElementsByTagName("pubDate")[0].textContent;
 			date = Date.parse(date);
 			// console.log("Most recent: " + podcast.mostRecent + " This Episode: " + date);
+			// console.log("Datelimit: " + dateLimit);
 			if (date <= dateLimit) {
 				console.log("Episode " + i + " is not new. Stopping.");
 				break;
@@ -57,6 +59,8 @@ var ParseFeed = function(xml, podcast, dateLimit) {
 				author: author,
 				title: title,
 				description: description,
+				logo100: podcast.artworkUrl100,
+				logo600: podcast.artworkUrl600,
 				length: e.getElementsByTagName("enclosure")[0].getAttribute("length"),
 				type: e.getElementsByTagName("enclosure")[0].getAttribute("type"),
 				fileUrl: e.getElementsByTagName("enclosure")[0].getAttribute("url"),
@@ -64,7 +68,8 @@ var ParseFeed = function(xml, podcast, dateLimit) {
 				progress: 0,
 				duration: 0,
 				played: "false",
-				downloaded: "false"
+				downloaded: "false",
+				inprogress: "false"
 			});
 		}
 	}

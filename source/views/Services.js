@@ -1,7 +1,8 @@
 var DownloadManager = {};
 
-DownloadManager.download = function(_this, sender, episode) {
-	console.log("DownloadManager.download(): " + episode.title);
+DownloadManager.download = function(_this, sender) {
+	console.log("DownloadManager.download(): " + sender.episode.title);
+	console.log(sender.episode);
 
 	var lastPercent = 0;
 	var xhr = new XMLHttpRequest({mozSystem: true});
@@ -10,7 +11,7 @@ DownloadManager.download = function(_this, sender, episode) {
 		// We don't need to update the UI every time onprogress fires
 		if (percent >= lastPercent + 5 || percent == 100) {
 			// console.log("Downloading... " + percent + "%");
-			_this.activeEpisode.setDownloadProgress(percent);
+			_this.$[sender.name].setDownloadProgress(percent);
 			lastPercent = percent;
 		}
 	};
@@ -21,14 +22,16 @@ DownloadManager.download = function(_this, sender, episode) {
 			console.log(response);
 			console.log("Download finished!");
 
-			_this.activeEpisode.episode.downloaded = "true";
-			_this.activeEpisode.episode.localUrl = res.response;
+			// _this.activeEpisode.episode.downloaded = "true";
+			// _this.activeEpisode.episode.localUrl = res.response;
 
-			PodcastManager.updateEpisode(_this, "download", episode, res.response);
+			// PodcastManager.updateEpisode(_this, "download", sender, res.response);
+			StorageManager.store(_this, sender, res.response);
+
 			// this.stream("", episode);
 		}
 	};
-	xhr.open('GET', episode.fileUrl);
+	xhr.open('GET', sender.episode.fileUrl);
 	xhr.responseType = 'blob';
 	xhr.send();
 };
@@ -39,6 +42,77 @@ DownloadManager.pause = function(id) {
 
 DownloadManager.cancel = function(id) {
 	console.log("DownloadManager.cancel(): " + id);
+};
+
+var StorageManager = [];
+
+StorageManager.store = function(_this, sender, blob) {
+	console.log("ready to store file...");
+	var storage = navigator.getDeviceStorage("music");
+	console.log(storage);
+	var name = sender.episode.name + sender.episode.date + ".mp3";
+
+	var request = storage.addNamed(blob, name);
+
+	request.onsuccess = function (response) {
+		// var name = this.result;
+		console.log(response);
+		console.log('File "' + name + '" successfully wrote on the sdcard storage area');
+		PodcastManager.updateEpisode(_this, "download", sender, name);
+	}
+
+	// An error typically occur if a file with the same name already exist
+	request.onerror = function () {
+		console.warn('Unable to write the file');
+		alert("Unable to write file. A file with the same name may already exist.");
+	}
+};
+
+StorageManager.get = function(_this, name) {
+	console.log("ready to get file...");
+	
+	var storage = navigator.getDeviceStorage("music");
+	console.log(storage);
+
+	var request = storage.get(name);
+
+	request.onsuccess = function () {
+		var file = this.result;
+		console.log(file);
+		// console.log("Get the file: " + file.name);
+		var url = URL.createObjectURL(file);
+		_this.startEpisode(url);
+	}
+
+	request.onerror = function () {
+		console.warn("Unable to get the file: " + this.error);
+		alert("Unable to locate file. Did you change the default media storage location?");
+	}
+};
+
+StorageManager.delete = function(_this, sender) {
+	console.log("ready to delete file...");
+	var name = sender.episode.localUrl;
+	
+	if (typeof name === "string") {
+		var storage = navigator.getDeviceStorage('music');
+		console.log(storage);
+
+		var request = storage.delete(name);
+
+		request.onsuccess = function () {
+			console.log(name + " successfully deleted");
+			PodcastManager.updateEpisode(_this, "download", sender, null);
+		}
+
+		request.onerror = function () {
+			console.log("Unable to delete the file: " + this.error);
+			alert("Unable to locate file. Did you change the default media storage location?");
+		}
+	} else {
+		// This episode is stored in the old format (blob) and must be deleted a different way
+		PodcastManager.updateEpisode(_this, "download", sender, null);
+	}
 };
 
 var PodcastManager = {};
@@ -64,6 +138,9 @@ PodcastManager.initialize = function(name, version) {
 		console.log("PodcastManager.initialize(): Success");
 		DB = request.result;
 
+		// Let it be known that the database is ready
+		enyo.Signals.send("onDatabaseReady");
+
 		DB.onerror = function(event) {
 			console.log("Database error: " + event.target.errorCode);
 		};
@@ -85,15 +162,19 @@ PodcastManager.initialize = function(name, version) {
 			// console.log(event);
 		}
 		var episodes = DB.createObjectStore("episodes", {autoIncrement : true});
-		episodes.createIndex("name", "name", {unique: false});
+		episodes.createIndex("name", ["name", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
 		}
-		episodes.createIndex("played", "played", {unique: false});
+		episodes.createIndex("played", ["played", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
 		}
-		episodes.createIndex("downloaded", "downloaded", {unique: false});
+		episodes.createIndex("downloaded", ["downloaded", "date"], {unique: false});
+		episodes.transaction.oncomplete = function(event) {
+			// console.log(event);
+		}
+		episodes.createIndex("inprogress", ["inprogress", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
 		}
@@ -143,6 +224,7 @@ PodcastManager.subscribe = function(_this, podcast, episodes) {
 		console.log(event);
 	};
 
+	console.log(episodes);
 	var store = trans.objectStore("episodes");
 	for (var i=0; i<episodes.length; i++) {
 		store.add(episodes[i]);
@@ -180,10 +262,14 @@ PodcastManager.unsubscribe = function(_this, podcast) {
 	// Delete all the episodes from the database
 	var store = DB.transaction(["episodes"], "readwrite").objectStore("episodes");
 	var index = store.index("name");
-	var key = IDBKeyRange.only(podcast.name);
+	// var key = IDBKeyRange.only(podcast.name);
+	var key = IDBKeyRange.bound([podcast.name, 0], [podcast.name, 99999999999999999999999]); // TODO: Find a better way to do this
+	var episodeCount = 0;
 	index.openCursor(key).onsuccess = function(event) {
 		var cursor = event.target.result;
+		// console.log(cursor);
 		if (cursor) {
+			// console.log(cursor);
 			var request = store.delete(cursor.primaryKey);
 			request.onerror = function(event) {
 				console.log("Error deleting episode.");
@@ -191,10 +277,11 @@ PodcastManager.unsubscribe = function(_this, podcast) {
 			};
 			request.onsuccess = function(event) {
 				// console.log("Successfully deleted episode.");
+				episodeCount++;
 			};
 			cursor.continue();
 		} else {
-			console.log("Successfully deleted " + podcast.name + " episodes.");
+			console.log("Successfully deleted " + episodeCount + " " + podcast.name + " episodes.");
 		}
 	};
 
@@ -205,9 +292,7 @@ PodcastManager.unsubscribe = function(_this, podcast) {
 };
 
 PodcastManager.checkIfSubscribed = function(_this, name) {
-	console.log("PodcastManager.checkIfSubscribed(): Fired");
-	// console.log(this);
-	// return;
+	// console.log("PodcastManager.checkIfSubscribed(): Fired");
 
 	var store = DB.transaction("podcasts").objectStore("podcasts");
 
@@ -225,7 +310,7 @@ PodcastManager.checkIfSubscribed = function(_this, name) {
 };
 
 PodcastManager.getAllPodcasts = function(_this) {
-	console.log("PodcastManager.getAllPodcasts(): Fired");
+	// console.log("PodcastManager.getAllPodcasts(): Fired");
 	var podcasts = [];
 
 	var keyRange = IDBKeyRange.lowerBound(0);
@@ -242,16 +327,20 @@ PodcastManager.getAllPodcasts = function(_this) {
 };
 
 PodcastManager.getAllEpisodes = function(_this, podcast) {
-	console.log("PodcastManager.getAllEpisodes(): Fired");
+	// console.log("PodcastManager.getAllEpisodes(): Fired");
 	var episodes = [];
 
-	var keyRange = IDBKeyRange.lowerBound(0);
+	// var keyRange = IDBKeyRange.lowerBound([podcast,0]);
+	var lowerBound = [podcast,0];
+	var upperBound = [podcast,2000000000000];
+	var range = IDBKeyRange.bound(lowerBound, upperBound);
+	
 	var store = DB.transaction("episodes").objectStore("episodes");
 	var index = store.index("name");
-	var key = IDBKeyRange.only(podcast);
+	// var key = IDBKeyRange.bound(range);
 	var i = 0;
 	var limit = 50; // TODO: Remove this limit
-	index.openCursor(key).onsuccess = function(event) {
+	index.openCursor(range, "prev").onsuccess = function(event) {
 		var cursor = event.target.result;
 		if (cursor && i < limit) {
 			var episode = cursor.value;
@@ -266,23 +355,183 @@ PodcastManager.getAllEpisodes = function(_this, podcast) {
 	};
 };
 
-PodcastManager.updateEpisode = function(_this, event, episode, data) {
-	console.log("PodcastManager.updateEpisode(): Event = " + event);
+PodcastManager.getSomeEpisodes = function(_this, filter) {
+	console.log("PodcastManager.getSomeEpisodes(): " + filter);
+	var episodes = [];
+
+	// var keyRange = IDBKeyRange.lowerBound(0);
+	var store = DB.transaction("episodes").objectStore("episodes");
+
+	switch(filter) {
+		case "downloaded":
+			var index = store.index(filter);
+			var key = IDBKeyRange.lowerBound(["true", 0]);
+			break;
+		case "inprogress":
+			var index = store.index(filter);
+			var key = IDBKeyRange.lowerBound(["true", 0]);
+			break;
+		case "recent":
+			var index = store.index("date");
+			var key = IDBKeyRange.lowerBound(0);
+			break;
+	}
+			
+	var i = 0;
+	var limit = 50; // TODO: Remove this limit
+	index.openCursor(key, "prev").onsuccess = function(event) {
+		var cursor = event.target.result;
+		if (cursor && i < limit) {
+			var episode = cursor.value;
+			episode.dbKey = cursor.primaryKey;
+
+			// TODO: Is this old code that I need? It breaks stuff.
+			// if (filter == "recent" && episode.played == "true") {
+			// 	cursor.continue();
+			// }
+
+			episodes.push(episode);
+			i++;
+			cursor.continue();
+		} else {
+			_this.renderEpisodes(episodes);
+		}
+	};
+};
+
+var podcastUpdateList = [];
+var podcastUpdatePosition = 0;
+
+PodcastManager.updateAllPodcasts = function(_this, podcasts) {
+	if (podcasts.length == 0) {
+		return;
+	}
+	
+	podcastUpdateList = podcasts;
+	podcastUpdatePosition = 0;
+
+	var status = (podcastUpdatePosition+1) + " of " + podcastUpdateList.length;
+	enyo.Signals.send("onPodcastsUpdateProgress", {status: status});
+
+	console.log("Updating podcast " + status);
+	PodcastManager.requestPodcastRefresh(_this, podcastUpdateList[podcastUpdatePosition]);
+};
+
+PodcastManager.updateNextPodcast = function() {
+	// var old = podcastUpdateList.shift();
+	podcastUpdatePosition++;
+
+	if (podcastUpdatePosition > podcastUpdateList.length - 1) {
+		enyo.Signals.send("onPodcastsUpdated");
+		return;
+	}
+
+	var status = (podcastUpdatePosition+1) + " of " + podcastUpdateList.length;
+	enyo.Signals.send("onPodcastsUpdateProgress", {status: status});
+	console.log("Updating podcast " + status);
+	PodcastManager.requestPodcastRefresh(null, podcastUpdateList[podcastUpdatePosition]);
+};
+
+PodcastManager.requestPodcastRefresh = function(_this, podcast) {
+	// console.log("PodcastManager.requestPodcastRefresh(): Event = " + podcast.name);
+
+	var xmlhttp = new XMLHttpRequest({mozSystem: true});
+	xmlhttp.open("GET", podcast.feedUrl, true);
+	xmlhttp.responseType = "xml";
+	xmlhttp.onreadystatechange = enyo.bind(this, function(response) {
+		// this.log(response);
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	        var parser = new DOMParser();
+			var xml = parser.parseFromString(xmlhttp.response, "text/xml");
+	        PodcastManager.processPodcastRefresh(_this, podcast, xml);
+	    }
+	});
+	xmlhttp.send();
+};
+
+PodcastManager.processPodcastRefresh = function(_this, podcast, xml) {
+	// console.log("PodcastManager.processPodcastRefresh(): Event = " + podcast.name);
+
+	var items = xml.getElementsByTagName("item");
+	var episodes = ParseFeed(xml, podcast, podcast.latest);
+
+	// No new episodes
+	if (episodes.length === 0) {
+		console.log("No new episodes...");
+		PodcastManager.updateNextPodcast();
+		return;
+	}
+	
+	console.log("Found new episodes!");
+	console.log(episodes);
+
+	// Now let's add the new episodes to the database
+	var store = DB.transaction(["episodes"], "readwrite").objectStore("episodes");
+	for (i=0; i<episodes.length; i++) {
+		store.add(episodes[i]);
+	}
+
+	// Finally, update the 'most recent' date for the podcast
+	PodcastManager.updatePodcast(null, "latest", podcast, episodes[0].date);
+};
+
+PodcastManager.updatePodcast = function(_this, action, podcast, data) {
+	console.log("PodcastManager.updatePodcast(): Event = " + action);
 	console.log(data);
+
+	var store = DB.transaction(["podcasts"], "readwrite").objectStore("podcasts");
+	var index = store.index("name");
+	var key = IDBKeyRange.only(podcast.name);
+	index.openCursor(key).onsuccess = function(event) {
+		var cursor = event.target.result;
+		if (cursor) {
+			var pod = cursor.value;
+
+			switch (action) {
+				case "latest":
+					pod.latest = data;
+					break;
+				default:
+					console.log("No action taken.");
+			}
+
+			var update = store.put(pod, cursor.primaryKey);
+			update.onerror = function(event) {
+				console.log("error");
+				console.log(event);
+			};
+			update.onsuccess = function(event) {
+				console.log("Successfully updated " + podcast.name);
+
+				PodcastManager.updateNextPodcast();
+			};
+
+			cursor.continue();
+		}
+	};
+};
+
+PodcastManager.updateEpisode = function(_this, event, sender, data) {
+	// console.log("PodcastManager.updateEpisode(): Event = " + event);
+	// console.log(data);
+
+	var episode = sender.episode;
+	// console.log(episode);
 
 	var store = DB.transaction(["episodes"], "readwrite").objectStore("episodes");
 	store.get(episode.dbKey).onsuccess = function(response) {
-		console.log(response);
+		// console.log(response);
 		var ep = response.target.result;
+
 
 		switch (event) {
 			case "download":
 				if (data) {
-					console.log("Saving blob to db.");
+					// console.log("Saving blob to db.");
 					ep.downloaded = "true";
 					ep.localUrl = data;
 				} else {
-					console.log("Deleting blob from db.");
+					// console.log("Deleting blob from db.");
 					ep.downloaded = "false";
 					ep.localUrl = "";
 				}
@@ -290,23 +539,30 @@ PodcastManager.updateEpisode = function(_this, event, episode, data) {
 			case "played":
 				if (data === true) {
 					ep.played = "true";
+					ep.inprogress = "false";
 				} else {
 					ep.played = "false";
+					ep.inprogress = "false";
 				}
 				break;
 			case "progress":
 				ep.progress = data.current;
 				ep.duration = data.duration;
 
-				if (data.current/data.duration*100 >= 97) {
+				if (data.current/data.duration*100 >= 98) {
 					ep.played = "true";
+					ep.inprogress = "false";
 				} else {
 					ep.played = "false";
+					ep.inprogress = "true";
 				}
 				break;
 			default:
 				console.log("No action taken.");
 		}
+
+		var updatedEpisode = enyo.mixin(episode, ep);
+		// console.log(updatedEpisode);
 
 		var update = store.put(ep, episode.dbKey);
 		update.onerror = function(response) {
@@ -315,8 +571,13 @@ PodcastManager.updateEpisode = function(_this, event, episode, data) {
 		};
 		update.onsuccess = function(response) {
 			console.log("Successfully updated podcast db entry. Title = " + episode.title);
-			if (ep.downloaded == "false") {
-				// this.podcastChanged();
+			// console.log(_this.name);
+
+			if (_this.name == "filteredList" || _this.name == "podcastDetail") {
+				// _this.refreshList();
+				// console.log(_this.$[sender.name]);
+				_this.$[sender.name].setEpisode(updatedEpisode);
+				_this.$[sender.name].processEpisode();
 			}
 		};
 	};

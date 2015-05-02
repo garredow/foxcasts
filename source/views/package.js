@@ -10,5 +10,7 @@ enyo.depends(
 	"PodcastPreview.js",
 	"PodcastDetail.js",
 	"EpisodeItem.js",
-	"Player.js"
+	"Player.js",
+	"FilteredList.js",
+	"Settings.js"
 );

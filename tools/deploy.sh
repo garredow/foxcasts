@@ -16,7 +16,7 @@ DEPLOY="$ENYO/tools/deploy.js"
 # check for node, but quietly
 if command -v node >/dev/null 2>&1; then
 	# use node to invoke deploy with imported parameters
-	echo "node $DEPLOY -T -s $SRC -o $SRC/deploy $@"
+	# echo "node $DEPLOY -T -s $SRC -o $SRC/deploy $@"
 	node "$DEPLOY" -T -s "$SRC" -o "$SRC/deploy" $@
 else
 	echo "No node found in path"
@@ -41,9 +41,30 @@ while [ "$1" != "" ]; do
 	case $1 in --fxos )
 		echo "Packaging for FirefoxOS"
 		#copy FirefoxOS files
-		DEST="$TOOLS/../deploy/"
+		DEST="$SRC/deploy/"
+		# DEST="$TOOLS/../deploy/"
 
-		cp -a fxos/. "$DEST"
+		cp -a "$SRC/fxos/." "$DEST"
+	esac
+	case $1 in --bb10 )
+		echo "Packaging for BlackBerry 10"
+		
+	esac
+	case $1 in --chrome )
+		echo "Packaging for Chrome"
+		#copy Chrome files
+		DEST="$SRC/deploy/"
+		# DEST="$TOOLS/../deploy/"
+
+		cp -a "$SRC/chrome/." "$DEST"
+	esac
+	case $1 in --webos )
+		echo "Packaging for webOS"
+		#copy webOS files
+		DEST="$SRC/deploy/"
+		# DEST="$TOOLS/../deploy/"
+
+		cp -a "$SRC/webOS/." "$DEST"
 	esac
 	shift
 done

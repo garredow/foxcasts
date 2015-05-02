@@ -1,0 +1,252 @@
+body {
+	background: #eaeaea;
+	color: #000;
+	font-family: Helvetica, sans-serif;
+}
+
+a {
+	color: #ec5817;
+}
+
+.highlight-primary-item {
+	background-color: #ec5817;
+}
+.highlight-secondary-item {
+	background-color: #ccc;
+}
+
+.themed-button {
+	background-color: #ddd;
+}
+
+.panels-sample-panels {
+	min-height: 320px;
+	min-width: 320px;
+}
+
+.empty-list-text {
+	color: #444;
+}
+
+
+/* Header */
+
+
+.header-bar {
+	border-top: 2px solid #ec5817;
+	background-color: #fff;
+	color: #111;
+}
+
+.header-button {
+	
+}
+.header-button.menu {
+	background-image: url('icons/menu-dark.png');
+}
+.header-button.back {
+	background-image: url('icons/back-dark.png');
+}
+
+
+/* Menu */
+
+
+.menu-item {
+	
+}
+
+.menu-divider {
+	border-bottom: 1px solid #666;
+}
+
+.menu-item-icon {
+	
+}
+.menu-item-icon.subscriptions {
+	background-image: url('icons/subscriptions-dark.png');
+}
+.menu-item-icon.player {
+	background-image: url('icons/player-dark.png');
+}
+.menu-item-icon.search {
+	background-image: url('icons/search-dark.png');
+}
+.menu-item-icon.playlists {
+	background-image: url('icons/playlists-dark.png');
+}
+.menu-item-icon.refresh {
+	background-image: url('icons/refresh-dark.png');
+}
+.menu-item-icon.settings {
+	background-image: url('icons/settings-dark.png');
+}
+
+.menu-item-label {
+	
+}
+
+
+/* Subscriptions Grid */
+
+
+.podcast-tile {
+	
+}
+.podcast-tile:before {
+	
+}
+
+.podcast-tile > img {
+	
+}
+
+
+/* Search */
+
+
+.search-result {
+	
+}
+
+.result-logo {
+	
+}
+
+.result-title,
+.result-author {
+	
+}
+
+.result-title {
+	
+}
+
+.result-author {
+	color: #666;
+
+}
+
+
+/* Podcast Preview, Podcast Detail */
+
+
+.podcast-detail {
+	
+}
+
+.podcast-detail .podcast-logo {
+	
+}
+.podcast-detail .podcast-title {
+	
+}
+.podcast-detail .podcast-author {
+	color: #444;
+}
+.podcast-detail .podcast-description {
+	
+}
+
+.subscribe-button {
+	background-color: #e1e1e1;
+	color: #292929;
+}
+
+
+/* Episode Item */
+
+
+.episode-item {
+	border-bottom: 1px solid #dedede;
+}
+
+.episode-item .episode-header {
+	
+}
+
+.episode-item  .line1 {
+	
+}
+.episode-item  .line2 {
+	color: #666;
+}
+
+.episode-item .icon-downloaded {
+
+}
+
+.episode-item .progress {
+	
+}
+
+.episode-item .overflow-button {
+	background-image: url('icons/overflow-dark.png');
+}
+
+.episode-action-popup {
+	background: #fff;
+	color: #111;
+}
+.episode-action-popup .popup-title {
+	f
+}
+.episode-action-popup .popup-button {
+	background-color: #ddd;
+	color: #111;
+}
+.episode-action-popup .popup-button.last {
+	
+}
+
+
+/* Player */
+
+
+.player {
+	
+}
+.player .title {
+	
+}
+.player .logo {
+	
+}
+
+.time-label {
+	
+}
+.time-label.current {
+	
+}
+.time-label.duration {
+	
+}
+
+.playback-button.rewind {
+	background-image: url("../../assets/icons/rewind_black.png");
+}
+.playback-button.play {
+	background-image: url("../../assets/icons/play_black.png");
+}
+.playback-button.pause {
+	background-image: url("../../assets/icons/pause_black.png");
+}
+.playback-button.forward {
+	background-image: url("../../assets/icons/forward_black.png");
+}
+
+
+/* Settings */
+
+
+.settings-row {
+	border-bottom: 1px solid rgba(100,100,100,.35);
+}
+.settings-row .label {
+	
+}
+
+.custom-picker {
+	color: #111;
+}

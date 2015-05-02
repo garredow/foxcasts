@@ -24,11 +24,14 @@ enyo.kind({
 			{name: "btnMenu", classes: "overflow-button", ontap: "doShowPopup"}
 		]},
 		{name: "drawer", kind: "onyx.Drawer", open: false, components: [
-			{name: "summary", style: "padding-top: 10px;", allowHtml: true, content: ""}
+			{name: "summary", style: "padding-top: 10px; padding-left: 15px;", allowHtml: true, content: ""}
 		]}
 	],
 	create: function() {
 		this.inherited(arguments);
+		this.processEpisode();
+	},
+	processEpisode: function() {
 		var e = this.episode;
 
 		this.$.line1.setContent(this.title);
@@ -41,11 +44,21 @@ enyo.kind({
 
 		if (e.played == "true") {
 			this.applyStyle("opacity", .4);
+		} else {
+			this.applyStyle("opacity", 1);
 		}
 
 		if (e.downloaded == "true") {
 			this.$.iconDownloaded.setShowing(true);
+		} else {
+			this.$.iconDownloaded.setShowing(false);
 		}
+
+		// this.render();
+	},
+	episodeChanged: function() {
+		this.log(this.episode);
+		this.processEpisode();
 	},
 	toggleDrawer: function() {
 		if (this.$.drawer.open) {
