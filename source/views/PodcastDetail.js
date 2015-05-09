@@ -41,7 +41,6 @@ enyo.kind({
 		// this.podcastChanged();
 	},
 	podcastChanged: function() {
-		// this.inherited(arguments);
 		var p = this.podcast;
 		this.$.logo.setSrc(p.logo600);
 		this.$.title.setContent(p.name);
@@ -143,7 +142,6 @@ enyo.kind({
 		var minutes = parseInt( totalSec / 60 ) % 60;
 		var seconds = totalSec % 60;
 
-		// if (hours < 10) { hours = "0" + hours; }
 		if (minutes < 10) { minutes = "0" + minutes; }
 		if (seconds < 10) { seconds = "0" + seconds; }
 

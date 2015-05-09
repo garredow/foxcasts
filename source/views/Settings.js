@@ -72,23 +72,7 @@ enyo.kind({
 				{name: "drawerStorage", kind: "onyx.Drawer", open: false, components: [
 					{classes: "setting-description", allowHtml: true, content: "FoxCasts uses the global system setting for media storage defined in the Settings app.<br><br>Please note: If you change this setting after downloading an episode, FoxCasts will not be able to locate the file since it'll be looking in the wrong place."}
 				]}
-			]},
-			// {kind: "FittableRows", classes: "settings-row", components: [
-			// 	{kind: "FittableColumns", components: [
-			// 		{name: "labelPlayback", content: "Storage Location", classes: "label", fit: true, ontap: "toggleDescription"},
-			// 		{kind: "onyx.PickerDecorator", components: [
-			// 			{name: "prefStorage", kind: "onyx.PickerButton", content: "Units", classes: "custom-picker"},
-			// 			{name: "pickStorage", kind: "onyx.Picker", onChange: "saveAppPrefs", floating: true, components: [
-			// 				{content: "Default", name: "default", active: true},
-			// 				// {content: "Internal", name: "internal", active: true},
-			// 				// {content: "External", name: "external"}
-			// 			]}
-			// 		]}
-			// 	]},
-			// 	{name: "drawerStorage", kind: "onyx.Drawer", open: false, components: [
-			// 		{classes: "setting-description", allowHtml: true, content: "FoxCasts uses the global system setting for media storage defined in the Settings app.<br><br>Please note: If you change this setting after downloading an episode, FoxCasts will not be able to locate the file since it'll be looking in the wrong place."}
-			// 	]}
-			// ]}
+			]}
 		]}
 	],
 	prefsLoaded: false,

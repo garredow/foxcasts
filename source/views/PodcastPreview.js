@@ -2,7 +2,6 @@ enyo.kind({
 	name: "PodcastPreview",
 	kind: "FittableRows",
 	fit: true,
-	// style: "padding: 10px 10px;",
 	classes: "podcast-detail",
 	published: {
 		headerText: "More Info",

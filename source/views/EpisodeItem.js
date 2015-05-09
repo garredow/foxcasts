@@ -53,8 +53,6 @@ enyo.kind({
 		} else {
 			this.$.iconDownloaded.setShowing(false);
 		}
-
-		// this.render();
 	},
 	episodeChanged: function() {
 		this.log(this.episode);

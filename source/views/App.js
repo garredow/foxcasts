@@ -43,7 +43,6 @@ enyo.kind({
 	},
 	checkStorage: function() {
 		var store = navigator.getDeviceStorage("music");
-		// var store = navigator.getDeviceStorages("music");
 		this.log(store);
 	},
 	manageHistory: function (action, panel) {
@@ -91,11 +90,6 @@ enyo.kind({
 					}
 				}
 				break;
-			// case "subscriptionsGrid":
-			// 	this.$.panels.setIndex(5);
-			// 	this.$.podcastDetail.setPodcast(inEvent);
-			// 	this.$.podcastDetail.refresh();
-			// 	break;
 			case "player":
 				this.$.panels.setIndex(0);
 				break;
@@ -177,7 +171,6 @@ enyo.kind({
 	resumeEpisode: function(inSender, episode) {
 		this.$.player.setPlaybackType("resume");
 		this.$.player.setEpisode(episode);
-		// this.$.player.initStream("resume");
 		this.changePanel({}, {command: "player"});
 	},
 	checkForUpdates: function() {

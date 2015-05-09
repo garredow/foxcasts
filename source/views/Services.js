@@ -22,13 +22,7 @@ DownloadManager.download = function(_this, sender) {
 			console.log(response);
 			console.log("Download finished!");
 
-			// _this.activeEpisode.episode.downloaded = "true";
-			// _this.activeEpisode.episode.localUrl = res.response;
-
-			// PodcastManager.updateEpisode(_this, "download", sender, res.response);
 			StorageManager.store(_this, sender, res.response);
-
-			// this.stream("", episode);
 		}
 	};
 	xhr.open('GET', sender.episode.fileUrl);

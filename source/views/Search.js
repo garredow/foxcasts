@@ -52,7 +52,6 @@ enyo.kind({
 			xmlhttp.onreadystatechange = enyo.bind(this, function(response) {
 				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 					console.log(xmlhttp);
-			        // console.log(xmlhttp.responseText);
 			        this.gotResults(xmlhttp.response);
 			    }
 			});
@@ -64,7 +63,7 @@ enyo.kind({
 
 		this.log(response);
 		// response = JSON.parse(response);
-		this.log(response);
+		// this.log(response);
 		this.results = response.results;
 		var r = response.results;
 

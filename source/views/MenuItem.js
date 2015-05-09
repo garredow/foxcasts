@@ -24,7 +24,6 @@ enyo.kind({
 		this.inherited(arguments);
 		if (this.icon) {
 			this.$.icon.addRemoveClass(this.icon, true);
-			// this.$.icon.applyStyle("background-image", "url('assets/icons/" + this.icon + ".png')");
 		}
 		this.$.label.setContent(this.label);
 	},

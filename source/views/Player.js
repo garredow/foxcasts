@@ -210,14 +210,11 @@ enyo.kind({
 		this.$.audio.play();
 		this.$.btnPlay.addRemoveClass("play", false);
 		this.$.btnPlay.addRemoveClass("pause", true);
-		// this.$.btnPlay.setSrc("assets/icons/icon-pause.png");
 	},
 	pauseAudio: function() {
 		this.$.audio.pause();
 		this.$.btnPlay.addRemoveClass("pause", false);
 		this.$.btnPlay.addRemoveClass("play", true);
-
-		// this.$.btnPlay.setSrc("assets/icons/icon-play.png");
 	},
 	togglePlay: function(inSender, inResponse) {
 		if (this.$.audio.getPaused()) {
@@ -252,7 +249,6 @@ enyo.kind({
 		var minutes = parseInt( totalSec / 60 ) % 60;
 		var seconds = totalSec % 60;
 
-		// if (hours < 10) { hours = "0" + hours; }
 		if (minutes < 10) { minutes = "0" + minutes; }
 		if (seconds < 10) { seconds = "0" + seconds; }
 
