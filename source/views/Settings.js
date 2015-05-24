@@ -18,7 +18,9 @@ enyo.kind({
 						{name: "prefUnitsButton", kind: "onyx.PickerButton", content: "Units", classes: "custom-picker"},
 						{name: "pickTheme", kind: "onyx.Picker", onChange: "saveAppPrefs", floating: true, components: [
 							{content: "Dark", name: "theme-dark", active: true},
-							{content: "Light", name: "theme-light"}
+							{content: "Light", name: "theme-light"},
+							{content: "Firefox OS", name: "firefox-dark"},
+							{content: "Firefox OS Light", name: "firefox-light"}
 						]}
 					]},
 				]},
@@ -128,7 +130,7 @@ enyo.kind({
 		var head = document.getElementsByTagName("head")[0];
 
 		// Remove any other theme stylesheets
-		var themeList = ["theme-light", "theme-dark"];
+		var themeList = ["theme-light", "theme-dark", "firefox-dark", "firefox-light"];
 		var appsheets = document.getElementsByTagName("link");
 		var foundTheme;
 
