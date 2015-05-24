@@ -5,7 +5,7 @@ enyo.depends(
 	"Menu.js",
 	"MenuItem.js",
 	"SubscriptionsGrid.js",
-	"SubscriptionTIle.js",
+	"SubscriptionTile.js",
 	"Search.js",
 	"PodcastPreview.js",
 	"PodcastDetail.js",
