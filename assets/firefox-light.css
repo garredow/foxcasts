@@ -1,0 +1,383 @@
+/*
++    App-specific LESS/CSS would go here, but to make your
++    application easier to maintain, you should try to
++    minimize the use of custom CSS.
++*/
+
+/*
+	Put anything you reference with "url()" in ../assets/
+	This way, you can minify your application, and just remove the "source" folder for production
+*/
+
+/*
+	@accent: #0ac;
+	@background: #f2f2f2;
+	@textColor1: #4d4d4d;
+	@textColor2: #ccc;
+	@textColor3: #aaa;
+*/
+
+body {
+	background: #F2F2F2!important;;
+  	color: #4d4d4d;
+	font-family: Helvetica, sans-serif;
+	font-style: italic;
+}
+
+a {
+	color: #D6D6D6;
+}
+
+.highlight-primary-item {
+	opacity: 0.4;
+	background: transparent;
+}
+
+.highlight-secondary-item {
+  background: rgba(0,0,0,0.1);
+}
+
+.themed-button {
+	background-color: #0ac;
+}
+
+.panels-sample-panels {
+	min-height: 320px;
+	min-width: 320px;
+}
+
+.empty-list-text {
+	color: #868692;
+	text-align: center;
+	margin: 20px 20px 0 20px;
+	font-style: normal;
+}
+
+/* Header */
+
+.header-bar {
+	height: 50px;
+	background: none;
+	border: none;
+	border-top: 0.1rem solid #B0B0B8;
+	background-color: #E2E2E2;
+	padding: 0px;
+	font-style: italic;
+	font-weight: 300;
+	font-size: 1.3rem;
+	color: #4d4d4d;
+}
+
+.header-button {
+	height: 50px !important;
+	width: 50px;
+	background-size: 24px 24px;
+	background-position: center center;
+	background-repeat: no-repeat;
+
+	/*opacity: 0;*/
+}
+.header-button.menu {
+	background-image: url('firefox-icons/menu-dark.png');
+	background-size: auto;
+	margin-left: 0px;
+}
+.header-button.back {
+	background-image: url('firefox-icons/back-dark.png');
+	margin-right: 0px;
+}
+
+/* Menu */
+
+.menu-item {
+	color: #4d4d4d;
+}
+
+.menu-divider {
+	border-bottom: 0.1rem solid #868692;
+	color: #0ac;
+}
+
+.menu-item-icon.subscriptions {
+	background-image: url('firefox-icons/subscriptions-dark.png');
+}
+.menu-item-icon.player {
+	background-image: url('firefox-icons/player-dark.png');
+}
+.menu-item-icon.search {
+	background-image: url('firefox-icons/search-dark.png');
+}
+.menu-item-icon.playlists {
+	background-image: url('firefox-icons/playlists-dark.png');
+}
+.menu-item-icon.refresh {
+	background-image: url('firefox-icons/refresh-dark.png');
+}
+.menu-item-icon.settings {
+	background-image: url('firefox-icons/settings-dark.png');
+}
+
+.menu-item-label {
+  font-size: 1.2rem;
+}
+
+/* Search */
+
+.onyx-button {
+    outline: 0px none;
+    color: #333;
+    font-size: 1.1rem;
+    font-style: italic;
+    text-align: center;
+    white-space: nowrap;
+    margin: 0px;
+    margin-bottom: 10px;
+    padding: 0.7rem 18px;
+    overflow: hidden;
+    border-radius: 2rem;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    text-overflow: ellipsis;
+}
+
+.onyx-button.active, .onyx-button.pressed {
+    background: #b2f2ff!important;
+    color: #fff!important;
+    background-position: center top;
+    border-top: none;
+    box-shadow: none;
+}
+
+.onyx-input-decorator > input {
+    margin: 0px;
+    padding: 7.5px 10px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background-color: transparent;
+    background-image: none;
+    font-size: 1rem;
+    font-style: italic;
+    color: #333;
+    box-shadow: none;
+}
+
+.onyx-input-decorator.onyx-focused {
+    box-shadow: none;
+    border-color: none;
+    border-radius: 0rem;
+    background-color: #E7E7E7;
+}
+
+.onyx-input-decorator {
+    border-radius: 3rem;
+    border: none;
+    margin: 0px;
+}
+
+.subscribe-button {
+    background-color: #D8D8D8;
+    color: #333;
+}
+
+.search-result {
+	height: 45px;
+	margin-bottom: 10px;
+	max-width: 100%;
+}
+
+.result-logo {
+	height: 32px;
+	width: 45px;
+	background: #aaa;
+	background-size: cover;
+	background-position: center center;
+	margin-right: 10px;
+}
+
+.result-title,
+.result-author {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.result-title {
+	font-size: 18px;
+}
+
+.result-author {
+	font-size: 0.85rem;
+	color: #888;
+
+}
+
+/* Podcast Preview, Podcast Detail */
+
+.podcast-detail .podcast-logo {
+	width: 100%;
+}
+.podcast-detail .podcast-title {
+	font-size: 20px;
+	font-weight: 500;
+	margin: 5px 0 0 10px;
+}
+.podcast-detail .podcast-author {
+	font-size: 14px;
+	color: #888;
+	margin: 0 0 10px 10px;
+}
+.podcast-detail .podcast-description {
+	margin-bottom: 20px;
+}
+
+/* Episode Item */
+
+.episode-item {
+	padding: 7px 10px;
+	border-bottom: 1px solid #868692;
+	background: transparent!important;
+}
+
+.episode-item  .line1 {
+	font-size: 16px;
+}
+
+.episode-item  .line2 {
+	font-size: 0.85rem;
+	color: #777;
+}
+
+.episode-item .icon-downloaded {
+	height: 18px;
+	margin-right: 7px;
+}
+
+.episode-item .progress {
+	font-size: 0.85rem;
+	width: 100%;
+	text-align: center;
+	padding-top: 5px;
+}
+
+.episode-item .overflow-button {
+	position: absolute;
+	top: 3px;
+	right: 0px;
+	width: 30px;
+	height: 30px;
+	background-image: url('firefox-icons/overflow-dark.png');
+	background-size: 1.5rem;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.episode-action-popup {
+	/*height: 300px;*/
+	width: 80%;
+	max-width: 500px;
+	/*padding: 5px 0;*/
+	background: #f4f4f4;
+	color: #4d4d4d;
+	border-radius: 1rem;
+	border: 0px;
+	box-shadow: none;
+}
+.episode-action-popup .popup-title {
+	font-size: 1.2rem;
+	text-align: center;
+}
+.episode-action-popup .popup-button {
+	width: 100%;
+	margin-bottom: 10px;
+	border: none;
+	background-color: #D8D8D8;
+	border-radius: 3.2rem;
+	color: #4d4d4d;
+	font-style: italic;
+}
+.episode-action-popup .popup-button.last {
+	width: 100%;
+	margin-bottom: 0px;
+}
+
+/* Player */
+
+.player .title {
+	font-size: 1rem;
+	font-weight: 400;
+	padding: 0;
+	margin-top: 10px;
+}
+
+.player .logo {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0;
+	margin-bottom: -5px;
+	max-width: 80%;
+	float: none
+}
+
+.playback-button.play {
+    background-image: url("../assets/firefox-icons/play_black.png");
+    background-size: auto;
+}
+
+.playback-button.pause {
+    background-image: url("../assets/firefox-icons/pause_black.png");
+    background-size: auto;
+}
+
+.playback-button.forward {
+    background-image: url("../assets/firefox-icons/forward_black.png");
+    background-size: auto;
+}
+
+.playback-button.rewind {
+    background-image: url("../assets/firefox-icons/rewind_black.png");
+    background-size: auto;
+}
+
+.time-label {
+	font-size: 0.9rem;
+	font-weight: 400;
+	font-style: normal;
+	margin: 0 10px;
+	display: inline-block;
+	vertical-align: top;
+	position: absolute;
+	top: 10px;
+}
+.time-label.current {
+	left: 0px;
+	margin: 0 5px 0 10px;
+}
+.time-label.duration {
+	right: 0px;
+	margin: 0 10px 0 5px;
+}
+
+/* Settings */
+
+.settings-row {
+	padding: 5px 10px;
+}
+.settings-row .label {
+	font-size: 1.1rem;
+	font-weight: 400;
+	color: #444;
+	padding-top: 12px;
+}
+
+.custom-picker {
+	margin-top: 6px;
+	border-radius: 0.2rem!important;
+        font-size: 0.9rem!important;
+	background: url("../assets/picker-arrow.png") no-repeat scroll right bottom / 10px auto #D8D8D8!important;
+	color: #4d4d4d;
+	font-style: italic;
+	
+	/*background: url("../../assets/picker-arrow.png") bottom right no-repeat;*/
+}
