@@ -8,7 +8,7 @@ enyo.kind({
 	fit: true,
 	components:[
 		{kind: "Panels", name: "menuSlider", fit:true, classes: "", arrangerKind: "CarouselArranger", index: 1, draggable: true, narrowFit: false, onTransitionFinish: "", components: [
-			{name: "menu", kind: "Menu", style: "width: 80vw;", onChangePanel: "changePanel", onRefreshAll: "checkForUpdates"},
+			{name: "menu", kind: "Menu", style: "width: 80vw; max-width: 300px;", onChangePanel: "changePanel", onRefreshAll: "checkForUpdates"},
 			{kind: "Panels", fit:true, classes: "panels-container", arrangerKind: "CardArranger", index: 1, draggable: false, onTransitionFinish: "panelChanged", components: [
 				{name: "player", kind: "Player"},
 				{name: "subscriptionsGrid", kind: "SubscriptionsGrid", onOpenPodcast: "showPodcastDetail"},

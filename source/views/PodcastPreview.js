@@ -78,29 +78,48 @@ enyo.kind({
 		this.$.episodes.destroyClientControls();
 		this.$.spinner.setShowing(true);
 
-		var xmlhttp = new XMLHttpRequest({mozSystem: true});
-		xmlhttp.open("GET", this.podcast.feedUrl, true);
-		xmlhttp.responseType = "xml";
-		xmlhttp.onreadystatechange = enyo.bind(this, function(response) {
-			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-				// console.log(xmlhttp);
-		        var parser = new DOMParser();
-				var xml = parser.parseFromString(xmlhttp.response, "text/xml");
-		        this.gotEpisodes(xml);
-		    }
-		});
-		xmlhttp.send();
-	},
-	gotEpisodes: function(xml) {
-		// Try to get the summary
-		var summary = xml.getElementsByTagName("summary");
-		if (summary.length > 0) {
-			this.podcast.summary = summary[0].textContent;
+		if (enyo.platform.firefoxOS) {
+			var xmlhttp = new XMLHttpRequest({mozSystem: true});
+			xmlhttp.open("GET", this.podcast.feedUrl, true);
+			xmlhttp.responseType = "xml";
+			xmlhttp.onreadystatechange = enyo.bind(this, function (response) {
+				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					// console.log(xmlhttp);
+					var parser = new DOMParser();
+					var xml = parser.parseFromString(xmlhttp.response, "text/xml");
+					this.gotEpisodes(xml, 'xml');
+				}
+			});
+			xmlhttp.send();
 		} else {
-			this.podcast.summary = "No summary available.";
+			this.log('Not FxOS');
+			var request = new enyo.XmlpRequest({
+				url: this.podcast.feedUrl
+			});
+			request.response(enyo.bind(this, function(inRequest, inResponse) {
+				console.log(inResponse);
+				this.gotEpisodes(inResponse, 'json');
+			}));
+			request.go();
+		}
+	},
+	gotEpisodes: function(response, type) {
+		// Try to get the summary
+		if(type == 'xml') {
+			var summary = response.getElementsByTagName("summary");
+			if (summary.length > 0) {
+				this.podcast.summary = summary[0].textContent;
+			} else {
+				this.podcast.summary = "No summary available.";
+			}
+		} else {
+			this.podcast.summary = response.rss.channel.summary || 'No summary available';
 		}
 
-		this.episodes = ParseFeed(xml, this.podcast);
+		this.processEpisodes(response, type);
+	},
+	processEpisodes: function(response, type) {
+		this.episodes = ParseFeed(response, this.podcast, 0, type);
 		this.log("Found " + this.episodes.length + " episodes.");
 
 		// this.log(this.episodes[0]);

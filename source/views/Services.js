@@ -427,27 +427,40 @@ PodcastManager.updateNextPodcast = function() {
 };
 
 PodcastManager.requestPodcastRefresh = function(_this, podcast) {
-	// console.log("PodcastManager.requestPodcastRefresh(): Event = " + podcast.name);
-
-	var xmlhttp = new XMLHttpRequest({mozSystem: true});
-	xmlhttp.open("GET", podcast.feedUrl, true);
-	xmlhttp.responseType = "xml";
-	xmlhttp.onreadystatechange = enyo.bind(this, function(response) {
-		// this.log(response);
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-	        var parser = new DOMParser();
-			var xml = parser.parseFromString(xmlhttp.response, "text/xml");
-	        PodcastManager.processPodcastRefresh(_this, podcast, xml);
-	    }
-	});
-	xmlhttp.send();
+	console.log("PodcastManager.requestPodcastRefresh(): Event = " + podcast.name);
+    
+    if (enyo.platform.firefoxOS) {
+        var xmlhttp = new XMLHttpRequest({mozSystem: true});
+        xmlhttp.open("GET", podcast.feedUrl, true);
+        xmlhttp.responseType = "xml";
+        xmlhttp.onreadystatechange = enyo.bind(this, function (response) {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                // console.log(xmlhttp);
+                var parser = new DOMParser();
+                var xml = parser.parseFromString(xmlhttp.response, "text/xml");
+                // this.gotEpisodes(xml, 'xml');
+                PodcastManager.processPodcastRefresh(_this, podcast, xml);
+            }
+        });
+        xmlhttp.send();
+    } else {
+        console.log('Not FxOS');
+        var request = new enyo.XmlpRequest({
+            url: podcast.feedUrl
+        });
+        request.response(enyo.bind(this, function(inRequest, inResponse) {
+            console.log(inResponse);
+            // this.gotEpisodes(inResponse, 'json');
+            PodcastManager.processPodcastRefresh(_this, podcast, inResponse);
+        }));
+        request.go();
+    }
 };
 
-PodcastManager.processPodcastRefresh = function(_this, podcast, xml) {
-	// console.log("PodcastManager.processPodcastRefresh(): Event = " + podcast.name);
-
-	var items = xml.getElementsByTagName("item");
-	var episodes = ParseFeed(xml, podcast, podcast.latest);
+PodcastManager.processPodcastRefresh = function(_this, podcast, data) {
+	console.log("PodcastManager.processPodcastRefresh(): Event = " + podcast.name);
+    
+	var episodes = ParseFeed(data, podcast, podcast.latest);
 
 	// No new episodes
 	if (episodes.length === 0) {
