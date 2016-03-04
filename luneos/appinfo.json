@@ -1,0 +1,11 @@
+{
+  "title": "FoxCasts",
+  "id": "com.choorp.app.foxcasts",
+  "version": "1.3.0",
+  "vendor": "Garrett Downs",
+  "vendor_url": "https://github.com/choorp/foxcasts",
+  "type": "web",
+  "main": "index.html",
+  "icon": "icon.png",
+  "uiRevision": "2"
+}

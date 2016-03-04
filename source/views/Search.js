@@ -38,13 +38,7 @@ enyo.kind({
 
 		var url = "https://itunes.apple.com/search?media=podcast&term=" + query;
 
-		if (enyo.platform.webos) {
-			var request = new enyo.JsonpRequest({
-				url: url
-			});
-			request.response(this, "gotResults");
-			request.go();
-		} else {
+		if (enyo.platform.firefoxOS) {
 			var xmlhttp = new XMLHttpRequest({mozSystem: true});
 			xmlhttp.open("GET", url, true);
 			xmlhttp.setRequestHeader("Content-type", "application/json");
@@ -52,20 +46,26 @@ enyo.kind({
 			xmlhttp.onreadystatechange = enyo.bind(this, function(response) {
 				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 					console.log(xmlhttp);
-			        this.gotResults(xmlhttp.response);
+			        this.gotResults(xmlhttp.response.results);
 			    }
 			});
 			xmlhttp.send();
-		}	
+		} else {
+            var request = new enyo.JsonpRequest({
+				url: url
+			});
+			request.response(enyo.bind(this, function(req, res) {
+                this.gotResults(res.results);
+            }));
+			request.go();
+		}
 	},
-	gotResults: function(response) {
+	gotResults: function(results) {
 		this.$.spinner.setShowing(false);
-
-		this.log(response);
-		// response = JSON.parse(response);
-		// this.log(response);
-		this.results = response.results;
-		var r = response.results;
+        
+        this.log('gotResults', results);
+		this.results = results;
+		var r = results;
 
 		this.$.results.destroyClientControls();
 
