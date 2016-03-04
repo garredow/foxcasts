@@ -66,6 +66,16 @@ while [ "$1" != "" ]; do
 
 		cp -a "$SRC/webOS/." "$DEST"
 	esac
+    case $1 in --luneos )
+        echo "Packaging for LuneOS"
+        
+        # Copy LuneOS files
+        DEST="$SRC/deploy/"
+        cp -a "$SRC/luneos/." "$DEST"
+        
+        # Package it as an ipk
+        palm-package -o ./deploy ./deploy
+    esac
     case $1 in --luneos-deploy )
         echo "Packaging for LuneOS"
         
@@ -81,7 +91,6 @@ while [ "$1" != "" ]; do
 
         # Copy the ipk over to the LuneOS emulator
         scp -P 5522 $ipkLocation root@localhost:/media/internal
-
     esac
 	shift
 done
