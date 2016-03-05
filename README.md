@@ -18,7 +18,16 @@ Set up the build environment the first time you check out the code:
 
 Now that you have the basics set up, building the app is easy. Just run the deploy.sh file from the main directory. Easy as that. Platform-specific examples below.
 
-FirefoxOS:
+#####FirefoxOS:
 
-    git submodule
     tools/deploy.sh --fxos
+
+#####LuneOS:
+
+Running the command below will build the app and package it as an ipk. The ipk file will be in the /deploy directory.
+
+    tools/deploy.sh --luneos
+    
+If you want to build the app and also send it to the emulator, use this command instead. The ipk will be sent to /media/internal.
+    
+    tools/deploy.sh --luneos-deploy
