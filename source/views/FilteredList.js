@@ -62,7 +62,7 @@ enyo.kind({
 			this.$.episodes.createComponent({kind: "EpisodeItem", title: episodes[i].name, subTitle: episodes[i].title, episode: episodes[i], onShowPopup: "showPopup", onStreamEp: "stream", onDownloadEp: "download", onResumeEp: "resume", owner: this});
 		}
 
-		if (episodes.length == 0) {
+		if (episodes.length === 0) {
 			this.$.episodes.createComponent({classes: "empty-list-text", content: "No episodes."});
 		}
 

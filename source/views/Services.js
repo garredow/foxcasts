@@ -9,7 +9,7 @@ DownloadManager.download = function(_this, sender) {
 	xhr.onprogress = function(response) {
 		var percent = parseInt(response.loaded / response.total * 100);
 		// We don't need to update the UI every time onprogress fires
-		if (percent >= lastPercent + 5 || percent == 100) {
+		if (percent > lastPercent || percent == 100) {
 			// console.log("Downloading... " + percent + "%");
 			_this.$[sender.name].setDownloadProgress(percent);
 			lastPercent = percent;
@@ -53,13 +53,13 @@ StorageManager.store = function(_this, sender, blob) {
 		console.log(response);
 		console.log('File "' + name + '" successfully wrote on the sdcard storage area');
 		PodcastManager.updateEpisode(_this, "download", sender, name);
-	}
+	};
 
 	// An error typically occur if a file with the same name already exist
 	request.onerror = function () {
 		console.warn('Unable to write the file');
 		alert("Unable to write file. A file with the same name may already exist.");
-	}
+	};
 };
 
 StorageManager.get = function(_this, name) {
@@ -76,12 +76,12 @@ StorageManager.get = function(_this, name) {
 		// console.log("Get the file: " + file.name);
 		var url = URL.createObjectURL(file);
 		_this.startEpisode(url);
-	}
+	};
 
 	request.onerror = function () {
 		console.warn("Unable to get the file: " + this.error);
 		alert("Unable to locate file. Did you change the default media storage location?");
-	}
+	};
 };
 
 StorageManager.delete = function(_this, sender) {
@@ -97,12 +97,12 @@ StorageManager.delete = function(_this, sender) {
 		request.onsuccess = function () {
 			console.log(name + " successfully deleted");
 			PodcastManager.updateEpisode(_this, "download", sender, null);
-		}
+		};
 
 		request.onerror = function () {
 			console.log("Unable to delete the file: " + this.error);
 			alert("Unable to locate file. Did you change the default media storage location?");
-		}
+		};
 	} else {
 		// This episode is stored in the old format (blob) and must be deleted a different way
 		PodcastManager.updateEpisode(_this, "download", sender, null);
@@ -119,15 +119,17 @@ PodcastManager.initialize = function(name, version) {
 		return;
 	}
 
+	var request;
 	if (version) {
-		var request = window.indexedDB.open(name, version);
+		request = window.indexedDB.open(name, version);
 	} else {
-		var request = window.indexedDB.open(name);
+		request = window.indexedDB.open(name);
 	}
 	
 	request.onerror = function(event) {
 		// Do something with request.errorCode!
 	};
+	
 	request.onsuccess = function(event) {
 		console.log("PodcastManager.initialize(): Success");
 		DB = request.result;
@@ -139,6 +141,7 @@ PodcastManager.initialize = function(name, version) {
 			console.log("Database error: " + event.target.errorCode);
 		};
 	};
+	
 	request.onupgradeneeded = function(event) {
 		console.log("PodcastManager.initialize(): onUpgradeNeeded");
 		DB = event.target.result;
@@ -154,28 +157,33 @@ PodcastManager.initialize = function(name, version) {
 		podcasts.createIndex("name", "name", {unique: true});
 		podcasts.transaction.oncomplete = function(event) {
 			// console.log(event);
-		}
+		};
+		
 		var episodes = DB.createObjectStore("episodes", {autoIncrement : true});
 		episodes.createIndex("name", ["name", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
-		}
+		};
+		
 		episodes.createIndex("played", ["played", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
-		}
+		};
+		
 		episodes.createIndex("downloaded", ["downloaded", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
-		}
+		};
+		
 		episodes.createIndex("inprogress", ["inprogress", "date"], {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
-		}
+		};
+		
 		episodes.createIndex("date", "date", {unique: false});
 		episodes.transaction.oncomplete = function(event) {
 			// console.log(event);
-		}
+		};
 	};
 };
 
@@ -203,7 +211,7 @@ PodcastManager.subscribe = function(_this, podcast, episodes) {
 	};
 	store.add(data);
 
-	var store = null; // TODO: Do we need to do this?
+	store = null; // TODO: Do we need to do this?
 
 	// Add the episodes to our database
 	var trans = DB.transaction(["episodes"], "readwrite");
@@ -219,7 +227,7 @@ PodcastManager.subscribe = function(_this, podcast, episodes) {
 	};
 
 	console.log(episodes);
-	var store = trans.objectStore("episodes");
+	store = trans.objectStore("episodes");
 	for (var i=0; i<episodes.length; i++) {
 		store.add(episodes[i]);
 	}
@@ -254,10 +262,10 @@ PodcastManager.unsubscribe = function(_this, podcast) {
 	key = null; // TODO: Do we need to do this?
 
 	// Delete all the episodes from the database
-	var store = DB.transaction(["episodes"], "readwrite").objectStore("episodes");
-	var index = store.index("name");
+	store = DB.transaction(["episodes"], "readwrite").objectStore("episodes");
+	index = store.index("name");
 	// var key = IDBKeyRange.only(podcast.name);
-	var key = IDBKeyRange.bound([podcast.name, 0], [podcast.name, 99999999999999999999999]); // TODO: Find a better way to do this
+	key = IDBKeyRange.bound([podcast.name, 0], [podcast.name, 99999999999999999999999]); // TODO: Find a better way to do this
 	var episodeCount = 0;
 	index.openCursor(key).onsuccess = function(event) {
 		var cursor = event.target.result;
@@ -289,7 +297,6 @@ PodcastManager.checkIfSubscribed = function(_this, name) {
 	// console.log("PodcastManager.checkIfSubscribed(): Fired");
 
 	var store = DB.transaction("podcasts").objectStore("podcasts");
-
 	var index = store.index("name");
 	index.get(name).onsuccess =  function(event) {
 		if (!event.target.result) {
@@ -379,11 +386,6 @@ PodcastManager.getSomeEpisodes = function(_this, filter) {
 			var episode = cursor.value;
 			episode.dbKey = cursor.primaryKey;
 
-			// TODO: Is this old code that I need? It breaks stuff.
-			// if (filter == "recent" && episode.played == "true") {
-			// 	cursor.continue();
-			// }
-
 			episodes.push(episode);
 			i++;
 			cursor.continue();
@@ -397,7 +399,7 @@ var podcastUpdateList = [];
 var podcastUpdatePosition = 0;
 
 PodcastManager.updateAllPodcasts = function(_this, podcasts) {
-	if (podcasts.length == 0) {
+	if (podcasts.length === 0) {
 		return;
 	}
 	
@@ -412,7 +414,6 @@ PodcastManager.updateAllPodcasts = function(_this, podcasts) {
 };
 
 PodcastManager.updateNextPodcast = function() {
-	// var old = podcastUpdateList.shift();
 	podcastUpdatePosition++;
 
 	if (podcastUpdatePosition > podcastUpdateList.length - 1) {

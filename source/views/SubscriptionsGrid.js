@@ -27,14 +27,13 @@ enyo.kind({
 			this.$.grid.createComponent({kind: "SubscriptionTile", icon: podcasts[i].logo600, dbData: podcasts[i], ontap: "openPodcast", owner: this});
 		}
 
-		if (podcasts.length == 0) {
+		if (podcasts.length === 0) {
 			this.$.grid.createComponent({classes: "empty-list-text", allowHtml: true, content: "It looks like you aren't subscribed to any podcasts yet. Why don't you use the Search to find some? I'm sure you'll find something you'll like!<br><br>(Swipe right)"});
 		}
 
 		this.$.grid.render();
 	},
 	openPodcast: function(inSender) {
-		// this.log(inSender);
 		this.doOpenPodcast(inSender.dbData);
 	}
 });

@@ -87,7 +87,6 @@ enyo.kind({
 			return;
 		}
 
-		console.log("Saving prefs");
 		PREFS.theme = this.$.pickTheme.getSelected().name;
 		PREFS.notification = this.$.pickNotification.getSelected().name;
 		PREFS.coverControls = this.$.pickCoverControls.getSelected().name;
@@ -155,8 +154,6 @@ enyo.kind({
 			e.setAttribute("href", "assets/" + theme + ".css");
 
 			head.appendChild(e);
-		} else {
-			// this.log("Nothing to do.");
 		}
 	},
 	toggleDescription: function(sender) {

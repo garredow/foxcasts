@@ -1,19 +1,18 @@
-var ParseFeed = function(xml, podcast, dateLimit, dataType) {
+var ParseFeed = function(data, podcast, dateLimit, dataType) {
 	console.log("Begin parseFeed");
-    console.log(xml);
+    console.log(data);
 
 	if (!dateLimit) {
 		dateLimit = 0;
 	}
 
-
 	var episodes = [];
 
 	// if (dataType == 'xml') {
-    if (xml.contentType && xml.contentType == 'text/xml') {
+    if (data.contentType && data.contentType == 'text/xml') {
 		console.log('Parsing episodes as XML');
 
-		var items = xml.getElementsByTagName("item");
+		var items = data.getElementsByTagName("item");
 		for (var i = 0; i < items.length; i++) {
 			var e = items[i];
 			// console.log(e);
@@ -82,7 +81,7 @@ var ParseFeed = function(xml, podcast, dateLimit, dataType) {
 	} else {
 		console.log('Parsing episodes as JSON');
 
-		var items = xml.rss.channel.item;
+		var items = data.rss.channel.item;
 		for (var i = 0; i < items.length; i++) {
 			var e = items[i];
 			// console.log(e);
@@ -152,4 +151,4 @@ var ParseFeed = function(xml, podcast, dateLimit, dataType) {
 	// console.log(episodes);
 	// console.log("parseFeed done.");
 	return(episodes);
-}
+};

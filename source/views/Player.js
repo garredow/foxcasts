@@ -19,7 +19,6 @@ enyo.kind({
 				{name: "description", classes: "description", allowHtml: true}
 			]}
 		]},
-        
 		{kind: "FittableRows", name: "audioContainer", classes: "audio-container", fit: true, components: [
 			{kind: "enyo.Audio", name:"audioPlayer", src: "", ontimeupdate: "timeChanged", onLoadedMetaData: "metaDataLoaded", onplay: "updateControlsUI", onpause: "updateControlsUI"},
 			{name: "audioTitle", classes: "title", content: "Title"},

@@ -1,3 +1,7 @@
+/* global DB */
+/* global PodcastManager */
+/* global PalmSystem */
+/* global enyo */
 // We need this so the back button knows what to do
 var HISTORY = [1];
 var PREFS = {};
@@ -58,19 +62,14 @@ enyo.kind({
 				}	
 				break;
 		}
-		// this.log(HISTORY);
 	},
 	changePanel: function(inSender, inEvent) {
-		// this.log(inSender);
-		// this.log(inEvent);
-
 		var command;
 		if (inEvent.command) {
 			command = inEvent.command;
 		} else {
 			command = inSender.name;
-		}	
-		// this.log(command);
+		}
 
 		switch (command) {
 			case "btnMenu":
@@ -165,7 +164,6 @@ enyo.kind({
 	streamEpisode: function(inSender, episode) {
 		this.$.player.setPlaybackType("stream");
 		this.$.player.setEpisode(episode);
-		// this.$.player.initStream();
 		this.changePanel({}, {command: "player"});
 	},
 	resumeEpisode: function(inSender, episode) {

@@ -43,7 +43,7 @@ enyo.kind({
 		}
 
 		if (e.played == "true") {
-			this.applyStyle("opacity", .4);
+			this.applyStyle("opacity", 0.4);
 		} else {
 			this.applyStyle("opacity", 1);
 		}
@@ -63,7 +63,7 @@ enyo.kind({
 			this.$.drawer.setOpen(false);
 			this.applyStyle("background-color", null);
 		} else {
-			if (this.$.summary.getContent() == "") {
+			if (this.$.summary.getContent() === "") {
 				this.$.summary.setContent(this.episode.description);
 			}
 			this.$.drawer.setOpen(true);
