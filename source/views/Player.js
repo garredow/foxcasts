@@ -12,49 +12,80 @@ enyo.kind({
 		onOpenPodcast: ""
 	},
 	components:[
-		{kind: "enyo.Audio", src: "", ontimeupdate: "timeChanged", onLoadedMetaData: "metaDataLoaded"},
-        {kind: 'choorp.Video', name: 'videoPlayer'},
-		{name: "title", classes: "title", content: "Title"},
-        {kind: "FittableRows", name: "audioPlayer", fit: true, components: [
-            {name: "logo", kind: "FittableRows", classes: "logo", fit: true, components :[
-                {name: "coverPlay", classes: "cover-play", ontap: "coverTapped"},
-                {kind: "FittableColumns", style: "height: 50%;", components: [
-                    {name: "coverRewind", classes: "cover-rewind", ontap: "coverTapped"},
-                    {name: "coverForward", classes: "cover-forward", ontap: "coverTapped"}
-                ]}
-            ]},
-            {kind: "onyx.Slider", value: 0, onChange: "positionChanged", onChanging: "positionChanging", style: "margin-top: 20px; margin-bottom: 20px;", onmousedown: "scrubSlider"},
-            {name: "controlsBox", kind: "FittableColumns", style: "text-align: center; padding-bottom: 10px; width: 100%;", components: [
-                {name: "timeCurrent", classes: "time-label current", content: "0:00:00"},
-                {name: "btnBack", classes: "playback-button rewind", ontap: "jumpBack"},
-                {name: "btnPlay", classes: "playback-button play", ontap: "togglePlay"},
-                {name: "btnForward", classes: "playback-button forward", ontap: "jumpForward"},
-                {name: "timeDuration", classes: "time-label duration", content: "0:00:00"}
-            ]}
-        ]}
+		{kind: "FittableRows", name: "videoContainer", fit: true, components: [
+			{kind: "choorp.Video", name: "videoPlayer", ontimeupdate: "timeChanged", onLoadedMetaData: "metaDataLoaded"},
+			{name: "videoTitle", classes: "title", content: "Title"},
+			{kind: "enyo.Scroller", fit: true, touch: true, thumb: false, horizontal: "hidden", components: [
+				{name: "description", classes: "description", allowHtml: true}
+			]}
+		]},
+        
+		{kind: "FittableRows", name: "audioContainer", classes: "audio-container", fit: true, components: [
+			{kind: "enyo.Audio", name:"audioPlayer", src: "", ontimeupdate: "timeChanged", onLoadedMetaData: "metaDataLoaded", onplay: "updateControlsUI", onpause: "updateControlsUI"},
+			{name: "audioTitle", classes: "title", content: "Title"},
+			{name: "logo", kind: "FittableRows", classes: "logo", fit: true, components :[
+				{name: "coverPlay", classes: "cover-play", ontap: "coverTapped"},
+				{kind: "FittableColumns", style: "height: 50%;", components: [
+					{name: "coverRewind", classes: "cover-rewind", ontap: "coverTapped"},
+					{name: "coverForward", classes: "cover-forward", ontap: "coverTapped"}
+				]}
+			]},
+			{kind: "onyx.Slider", value: 0, onChange: "sliderChanged", onChanging: "sliderChanging", style: "margin-top: 20px; margin-bottom: 20px;", onmousedown: "scrubSlider"},
+			{name: "controlsBox", kind: "FittableColumns", style: "text-align: center; padding-bottom: 10px; width: 100%;", components: [
+				{name: "timeCurrent", classes: "time-label current", content: "0:00:00"},
+				{name: "btnBack", classes: "playback-button rewind", ontap: "jumpBack"},
+				{name: "btnPlay", classes: "playback-button play", ontap: "togglePlay"},
+				{name: "btnForward", classes: "playback-button forward", ontap: "jumpForward"},
+				{name: "timeDuration", classes: "time-label duration", content: "0:00:00"}
+			]}
+		]}
 	],
 	sliderManual: false,
 	lastUpdate: 0,
 	notification: null,
 	actionBlocked: false,
+	mediaPlayer: "",
+	mediaIsVideo: false,
 	create: function() {
 		this.inherited(arguments);
-		this.$.audio.hasNode().preload = "none";
-		this.$.audio.hasNode().mozAudioChannelType = "content";
+		// this.$.audioPlayer.hasNode().preload = "none";
+		// this.$.audioPlayer.hasNode().mozAudioChannelType = "content";
 	},
 	episodeChanged: function() {
 		this.log(this.episode);
-		this.$.title.setContent(this.episode.title);
-		this.$.logo.hasNode().style.backgroundImage = "url('" + this.episode.logo600 + "')";
+        
+        // Clear current episode
+        this.$.videoPlayer.setSrc("");
+        this.$.videoTitle.setContent("");
+        this.$.description.setContent("");
+        this.$.audioPlayer.setSrc("");
+        this.$.audioTitle.setContent("");
+        this.$.logo.hasNode().style.backgroundImage = "none";
+        this.$.slider.setValue(0);
 
-        if (this.episode.type == "video/mp4") {
-            this.$.audioPlayer.setShowing(false);
-            this.$.videoPlayer.setShowing(true);
+        this.mediaIsVideo = this.episode.type == "video/mp4" ? true : false;
+        this.log("mediaIsVideo", this.mediaIsVideo);
+
+		// Show and configure the proper media player
+        if (this.mediaIsVideo) {
+        	this.mediaPlayer = this.$.videoPlayer;
+
+            this.$.audioContainer.setShowing(false);
+            this.$.videoContainer.setShowing(true);
+
+            this.$.videoTitle.setContent(this.episode.title);
+            this.$.description.setContent(this.episode.description);
         } else {
-            this.$.videoPlayer.setShowing(false);
-            this.$.audioPlayer.setShowing(true);
+        	this.mediaPlayer = this.$.audioPlayer;
+
+            this.$.videoContainer.setShowing(false);
+            this.$.audioContainer.setShowing(true);
+
+            this.$.audioTitle.setContent(this.episode.title);
+            this.$.logo.hasNode().style.backgroundImage = "url('" + this.episode.logo600 + "')";
         }
 
+        // Are we streaming from a remote server or playing local content?
 		if (this.episode.downloaded == "true") {
 			this.log("Playing local file.");
 			if (typeof this.episode.localUrl == "string") {
@@ -67,29 +98,28 @@ enyo.kind({
 			this.log("Streaming remote file.");
 			this.startEpisode(this.episode.fileUrl);
 		}
-
-		
 	},
 	startEpisode: function(source) {
 		this.log(source);
+
+		if (!this.mediaIsVideo) {
+			this.mediaPlayer.hasNode().mozAudioChannelType = "content";
+		}
         
-        if (this.episode.type == 'video/mp4') {
-            this.$.videoPlayer.setSrc(source);
-            this.$.videoPlayer.play();
-        } else {
-            this.$.audio.hasNode().mozAudioChannelType = "content";
-            this.updateNotification();
+        this.mediaPlayer.setSrc(source);
 
-            this.$.audio.setSrc(source);
-            this.playAudio();
-        }
+		// if (this.playbackType == "resume" && this.episode.progress > 0) {
+		// 	this.mediaPlayer.hasNode().currentTime = this.episode.progress;
+		// 	this.updateTimes(this.episode.progress, this.episode.duration);
 
-		// var options = {
-		// 	contentTitle: this.episode.title,
-		// 	contentUri: source,
-		// 	imageUri: this.episode.logo600
-		// };
-		// blackberry.invoke.card.invokeMediaPlayer(options, "", "", "");
+		// 	if (!this.mediaIsVideo) {
+		// 		this.$.slider.setValue(this.episode.progress / this.episode.duration * 100);
+		// 	}
+		// }
+
+        this.mediaPlayer.play();
+        
+        this.updateNotification();
 	},
 	updateNotification: function() {
 		var pref = PREFS.notification;
@@ -154,98 +184,94 @@ enyo.kind({
 		}
 	},
 	metaDataLoaded: function(inSender, inEvent) {
-		this.log(inSender);
+		// this.log(inSender);
 		var current = inSender.eventNode.currentTime;
 		var duration = inSender.eventNode.duration;
-		this.log("Current: " + current);
-		this.log("Duration: " + duration);
 
-		this.$.slider.setValue(0);
 		if (this.playbackType == "resume" && this.episode.progress > 0) {
-			this.$.audio.hasNode().currentTime = this.episode.progress;
-			this.$.slider.setValue(this.episode.progress / this.episode.duration * 100);
-			this.updateTimes(this.episode.progress, this.episode.duration);
+			this.mediaPlayer.hasNode().currentTime = this.episode.progress;
+
+			if (!this.mediaIsVideo) {
+				this.$.slider.setValue(this.episode.progress / this.episode.duration * 100);
+				this.updateTimes(this.episode.progress, this.episode.duration);
+			}
 		} else {
 			this.updateTimes(current, duration);
 		}
 		
-		this.$.audio.hasNode().title = this.episode.title;
-		this.$.audio.hasNode().contentTitle = this.episode.title;
+		// this.mediaPlayer.hasNode().title = this.episode.title;
+		// this.mediaPlayer.hasNode().contentTitle = this.episode.title;
 	},
 	timeChanged: function(inSender, inEvent) {
-		// this.log(inSender);
-		// this.log(inEvent);
 		var current = Math.floor(inEvent.currentTime);
+		var duration = Math.floor(inEvent.duration);
+
 		if (current == this.lastUpdate) {
 			return;
 		}
-		var duration = Math.floor(inEvent.duration);
-		var percent = parseInt(current / duration * 100);
+
 		if (!this.sliderManual) {
+			var percent = parseInt(current / duration * 100);
 			this.$.slider.animateTo(percent);
 		}
 
 		this.updateTimes(current, duration);
-
-		if (current % 5 == 0) {
-			this.saveTrackPosition(current, duration);
-		}
+		this.saveTrackPosition(current, duration);
 
 		this.lastUpdate = current;
 	},
-	positionChanged: function() {
-		var percent = this.$.slider.getValue();
-		// this.log(percent);
-
+	sliderChanged: function() {
 		if (this.episode.progress && this.episode.duration) {
 			// this.log("Changing current position...");
-			var stopped = this.$.audio.getPaused();
+			var percent = this.$.slider.getValue();
 			var newPos = (percent / 100) * this.episode.duration;
-			// this.log("Duration: " + this.episode.duration);
-			// this.log("New Position: " + newPos);
-			this.$.audio.hasNode().currentTime = newPos;
 
+			this.mediaPlayer.hasNode().currentTime = newPos;
 			this.updateTimes(newPos);
+
+			var stopped = this.mediaPlayer.getPaused();
 			if (!stopped) {
-				this.$.audio.play();
+				this.$.audioPlayer.play();
 			}
 		}
 
 		this.sliderManual = false;
 	},
-	positionChanging: function() {
-		var current = this.$.slider.getValue();
+	updateControlsUI: function(inSender, inEvent) {
+		if (!this.mediaIsVideo) {
+			if (inEvent.type == "play") {
+				this.$.btnPlay.addRemoveClass("play", false);
+				this.$.btnPlay.addRemoveClass("pause", true);
+			} else {
+				this.$.btnPlay.addRemoveClass("pause", false);
+				this.$.btnPlay.addRemoveClass("play", true);
+			}
+		}
+	},
+	sliderChanging: function() {
+		// var current = this.$.slider.getValue();
 		// this.log(current);
 	},
 	scrubSlider: function(inSender, inEvent) {
-		// this.log(inSender);
-		// this.log(inEvent);
 		this.sliderManual = true;
 	},
-	playAudio: function() {
-		this.$.audio.play();
-		this.$.btnPlay.addRemoveClass("play", false);
-		this.$.btnPlay.addRemoveClass("pause", true);
+	playMedia: function() {
+		this.mediaPlayer.play();
 	},
-	pauseAudio: function() {
-		this.$.audio.pause();
-		this.$.btnPlay.addRemoveClass("pause", false);
-		this.$.btnPlay.addRemoveClass("play", true);
-	},
-	togglePlay: function(inSender, inResponse) {
-		if (this.$.audio.getPaused()) {
-			this.playAudio();
+	togglePlay: function() {
+		if (this.mediaPlayer.getPaused()) {
+			this.mediaPlayer.play();
 		} else {
-			this.pauseAudio();
+			this.mediaPlayer.pause();
 		}
 	},
 	jumpBack: function() {
-		this.$.audio.set("jumpSec", 10);
-		this.$.audio.jumpBackward();
+		this.mediaPlayer.set("jumpSec", 10);
+		this.mediaPlayer.jumpBackward();
 	},
 	jumpForward: function() {
-		this.$.audio.set("jumpSec", 30);
-		this.$.audio.jumpForward();
+		this.mediaPlayer.set("jumpSec", 30);
+		this.mediaPlayer.jumpForward();
 	},
 	updateTimes: function(current, duration) {
 		// if (current) {

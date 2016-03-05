@@ -1,17 +1,20 @@
 enyo.kind({
     name: 'choorp.Video',
-    kind: 'Control',
+    kind: 'enyo.Media',
     tag: 'video',
     style: "width: 100%; max-height: 100vh;",
     published: {
         src: ''
     },
-    attributes: {
-        controls: true
+    create: function() {
+        this.inherited(arguments);
+    },
+    rendered: function() {
+        this.inherited(arguments);
+        this.hasNode().setAttribute('controls', '');
     },
     srcChanged: function() {
-        this.log('New url: ' + this.url);
-        
+        this.log('New src: ' + this.src);
         this.hasNode().src = this.src;
     },
     pause: function() {
