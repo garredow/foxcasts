@@ -12,5 +12,6 @@ enyo.depends(
 	"EpisodeItem.js",
 	"Player.js",
 	"FilteredList.js",
-	"Settings.js"
+	"Settings.js",
+    "choorp.Video.js"
 );

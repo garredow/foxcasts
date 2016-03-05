@@ -13,22 +13,25 @@ enyo.kind({
 	},
 	components:[
 		{kind: "enyo.Audio", src: "", ontimeupdate: "timeChanged", onLoadedMetaData: "metaDataLoaded"},
+        {kind: 'choorp.Video', name: 'videoPlayer'},
 		{name: "title", classes: "title", content: "Title"},
-		{name: "logo", kind: "FittableRows", classes: "logo", fit: true, components :[
-			{name: "coverPlay", classes: "cover-play", ontap: "coverTapped"},
-			{kind: "FittableColumns", style: "height: 50%;", components: [
-				{name: "coverRewind", classes: "cover-rewind", ontap: "coverTapped"},
-				{name: "coverForward", classes: "cover-forward", ontap: "coverTapped"}
-			]}
-		]},
-		{kind: "onyx.Slider", value: 0, onChange: "positionChanged", onChanging: "positionChanging", style: "margin-top: 20px; margin-bottom: 20px;", onmousedown: "scrubSlider"},
-		{name: "controlsBox", kind: "FittableColumns", style: "text-align: center; padding-bottom: 10px; width: 100%;", components: [
-			{name: "timeCurrent", classes: "time-label current", content: "0:00:00"},
-			{name: "btnBack", classes: "playback-button rewind", ontap: "jumpBack"},
-			{name: "btnPlay", classes: "playback-button play", ontap: "togglePlay"},
-			{name: "btnForward", classes: "playback-button forward", ontap: "jumpForward"},
-			{name: "timeDuration", classes: "time-label duration", content: "0:00:00"}
-		]}
+        {kind: "FittableRows", name: "audioPlayer", fit: true, components: [
+            {name: "logo", kind: "FittableRows", classes: "logo", fit: true, components :[
+                {name: "coverPlay", classes: "cover-play", ontap: "coverTapped"},
+                {kind: "FittableColumns", style: "height: 50%;", components: [
+                    {name: "coverRewind", classes: "cover-rewind", ontap: "coverTapped"},
+                    {name: "coverForward", classes: "cover-forward", ontap: "coverTapped"}
+                ]}
+            ]},
+            {kind: "onyx.Slider", value: 0, onChange: "positionChanged", onChanging: "positionChanging", style: "margin-top: 20px; margin-bottom: 20px;", onmousedown: "scrubSlider"},
+            {name: "controlsBox", kind: "FittableColumns", style: "text-align: center; padding-bottom: 10px; width: 100%;", components: [
+                {name: "timeCurrent", classes: "time-label current", content: "0:00:00"},
+                {name: "btnBack", classes: "playback-button rewind", ontap: "jumpBack"},
+                {name: "btnPlay", classes: "playback-button play", ontap: "togglePlay"},
+                {name: "btnForward", classes: "playback-button forward", ontap: "jumpForward"},
+                {name: "timeDuration", classes: "time-label duration", content: "0:00:00"}
+            ]}
+        ]}
 	],
 	sliderManual: false,
 	lastUpdate: 0,
@@ -43,6 +46,14 @@ enyo.kind({
 		this.log(this.episode);
 		this.$.title.setContent(this.episode.title);
 		this.$.logo.hasNode().style.backgroundImage = "url('" + this.episode.logo600 + "')";
+
+        if (this.episode.type == "video/mp4") {
+            this.$.audioPlayer.setShowing(false);
+            this.$.videoPlayer.setShowing(true);
+        } else {
+            this.$.videoPlayer.setShowing(false);
+            this.$.audioPlayer.setShowing(true);
+        }
 
 		if (this.episode.downloaded == "true") {
 			this.log("Playing local file.");
@@ -61,12 +72,17 @@ enyo.kind({
 	},
 	startEpisode: function(source) {
 		this.log(source);
-		this.$.audio.hasNode().mozAudioChannelType = "content";
-		this.updateNotification();
+        
+        if (this.episode.type == 'video/mp4') {
+            this.$.videoPlayer.setSrc(source);
+            this.$.videoPlayer.play();
+        } else {
+            this.$.audio.hasNode().mozAudioChannelType = "content";
+            this.updateNotification();
 
-		this.$.audio.setSrc(source);
-		// this.log(this.$.audio;
-		this.playAudio();
+            this.$.audio.setSrc(source);
+            this.playAudio();
+        }
 
 		// var options = {
 		// 	contentTitle: this.episode.title,

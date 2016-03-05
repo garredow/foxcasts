@@ -70,10 +70,10 @@ enyo.kind({
 		this.$.episodes.createComponent({kind: "onyx.Button", content: "Refresh", style: "margin: 20px 0 10px 0;", classes: "onyx-dark", ontap: "checkForNewEpisodes", owner: this});
 		this.$.episodes.render();
 	},
-	stream: function(inSender, episode) {
-		var working = this.findWorkingEpisode();
+	stream: function(inSender, inEvent) {
+        this.log("activeEpisode", this.activeEpisode);
 
-		this.doStream(working.episode);
+		this.doStream(this.activeEpisode);
 		this.$.popup.hide();
 	},
 	resume: function(inSender, episode) {
@@ -110,9 +110,8 @@ enyo.kind({
 		return(e);
 	},
 	showPopup: function(inSender, inEvent) {
-		this.activeEpisode = inSender;
-		// this.log(this.activeEpisode);
-		var e = this.activeEpisode.episode;
+		this.activeEpisode = inSender.episode;
+		var e = this.activeEpisode;
 		this.$.episodeTitle.setContent(e.title);
 		
 		this.$.btnResume.setShowing(false);
@@ -147,5 +146,5 @@ enyo.kind({
 
 		var time = hours + ":" + minutes + ":" + seconds;
 		return time;
-	}
+    }
 });
