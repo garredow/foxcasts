@@ -7,5 +7,6 @@
   "type": "web",
   "main": "index.html",
   "icon": "icon.png",
-  "uiRevision": "2"
+  "uiRevision": "2",
+  "keywords": ["podcatcher", "podcast"]
 }
