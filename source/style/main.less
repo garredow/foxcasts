@@ -46,8 +46,6 @@ a {
 	background-size: 24px 24px;
 	background-position: center center;
 	background-repeat: no-repeat;
-
-	/*opacity: 0;*/
 }
 .header-button.menu {
 	background-image: url('../../assets/icons/menu-light.png');
@@ -70,7 +68,6 @@ a {
 
 .menu-item {
 	padding: 5px 10px;
-	// margin-bottom: 5px;
 	height: 40px;
 }
 
@@ -124,7 +121,7 @@ a {
 	display: inline-block;
 	position: relative;
 	margin: 2px 2px -2px 2px;
-	width: 32%; /* desired width */
+	width: 32%;
     max-width: 200px;
 }
 .podcast-tile:before {
@@ -147,7 +144,6 @@ a {
 
 .search-result {
 	height: 45px;
-	/*margin-bottom: 10px;*/
 	max-width: 100%;
 	padding: 5px 10px;
 }
@@ -254,10 +250,8 @@ a {
 }
 
 .episode-action-popup {
-	/*height: 300px;*/
 	width: 80%;
 	max-width: 500px;
-	/*padding: 5px 0;*/
 	background: #333;
 	color: #eee;
 	padding: 10px;
@@ -284,16 +278,23 @@ a {
 
 
 .player {
-	text-align: center;
+	// text-align: center;
 }
 .player .title {
 	font-size: 18px;
 	padding: 10px 10px;
 }
+.player .description {
+	padding: 0 10px;
+}
 .player .logo {
 	background-size: contain;
 	background-position: center center;
 	background-repeat: no-repeat;
+}
+
+.audio-container {
+	text-align: center;
 }
 
 .time-label {
@@ -331,7 +332,6 @@ a {
 	background-size: contain;
 	background-position: center center;
 	background-repeat: no-repeat;
-	// background-color: #ccc;
 }
 .playback-button.rewind {
 	background-image: url("../../assets/icons/rewind_white.png");
