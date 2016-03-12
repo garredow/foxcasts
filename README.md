@@ -5,6 +5,7 @@ A fully-featured podcatcher app for FirefoxOS.
 
 #### Current App Listings
 * [FirefoxOS Marketplace](https://marketplace.firefox.com/app/foxcasts)
+* [LuneOS](http://forums.webosnation.com/luneos/331078-app-foxcasts.html)
 
 #### How do I build this?
 _Requirements_
@@ -31,3 +32,7 @@ Running the command below will build the app and package it as an ipk. The ipk f
 If you want to build the app and also send it to the emulator, use this command instead. The ipk will be sent to /media/internal.
     
     tools/deploy.sh --luneos-deploy
+
+Build and install right to a LuneOS device over adb.
+
+    tools/deploy.sh --luneos-install
