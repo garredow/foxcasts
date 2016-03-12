@@ -5,6 +5,7 @@ A fully-featured podcatcher app for FirefoxOS.
 
 #### Current App Listings
 * [FirefoxOS Marketplace](https://marketplace.firefox.com/app/foxcasts)
+* [LuneOS](http://forums.webosnation.com/luneos/331078-app-foxcasts.html)
 
 #### How do I build this?
 _Requirements_
