@@ -92,5 +92,17 @@ while [ "$1" != "" ]; do
         # Copy the ipk over to the LuneOS emulator
         scp -P 5522 $ipkLocation root@localhost:/media/internal
     esac
+    case $1 in -i | --luneos-install )
+        echo "Reinstalling to LuneOS"
+
+		# re-install to attached Lune OS device
+        DEST="$SRC/deploy/"
+        cp -a "$SRC/luneos/." "$DEST"
+		adb push "$DEST" /media/cryptofs/apps/usr/palm/applications/com.choorp.app.foxcasts
+		adb shell systemctl restart luna-next
+
+		# enable inspection of web views
+		adb forward tcp:1122 tcp:1122
+    esac
 	shift
 done
