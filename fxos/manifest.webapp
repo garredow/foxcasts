@@ -34,6 +34,10 @@
 			"access": "readwrite",
 			"description": "Required to read and write podcasts episodes."
 		},
+		"device-storage:videos": {
+			"access": "readwrite",
+			"description": "Required to read and write podcasts episodes."
+		},
 		"device-storage:sdcard": {
 			"access": "readwrite",
 			"description": "Required to read and write podcasts episodes to external storage."
