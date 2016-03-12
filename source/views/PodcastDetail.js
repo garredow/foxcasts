@@ -71,9 +71,9 @@ enyo.kind({
 		this.$.episodes.render();
 	},
 	stream: function(inSender, inEvent) {
-        this.log("activeEpisode", this.activeEpisode);
+        this.log("activeEpisode", this.activeEpisode.episode);
 
-		this.doStream(this.activeEpisode);
+		this.doStream(this.activeEpisode.episode);
 		this.$.popup.hide();
 	},
 	resume: function(inSender, episode) {
@@ -110,8 +110,8 @@ enyo.kind({
 		return(e);
 	},
 	showPopup: function(inSender, inEvent) {
-		this.activeEpisode = inSender.episode;
-		var e = this.activeEpisode;
+		this.activeEpisode = inSender;
+		var e = this.activeEpisode.episode;
 		this.$.episodeTitle.setContent(e.title);
 		
 		this.$.btnResume.setShowing(false);

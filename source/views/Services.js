@@ -42,9 +42,20 @@ var StorageManager = [];
 
 StorageManager.store = function(_this, sender, blob) {
 	console.log("ready to store file...");
-	var storage = navigator.getDeviceStorage("music");
-	console.log(storage);
-	var name = sender.episode.name + sender.episode.date + ".mp3";
+	console.log(sender);
+
+	var storage, name;
+
+	if (sender.episode.type == "video/mp4") {
+		storage = navigator.getDeviceStorage("videos");
+		console.log(storage);
+		name = sender.episode.name + sender.episode.date + ".mp4";
+	} else {
+		storage = navigator.getDeviceStorage("music");
+		console.log(storage);
+		name = sender.episode.name + sender.episode.date + ".mp3";
+	}
+	
 
 	var request = storage.addNamed(blob, name);
 
@@ -56,19 +67,25 @@ StorageManager.store = function(_this, sender, blob) {
 	};
 
 	// An error typically occur if a file with the same name already exist
-	request.onerror = function () {
+	request.onerror = function (e) {
+		console.log(e);
 		console.warn('Unable to write the file');
 		alert("Unable to write file. A file with the same name may already exist.");
 	};
 };
 
-StorageManager.get = function(_this, name) {
+StorageManager.get = function(_this, episode) {
 	console.log("ready to get file...");
 	
-	var storage = navigator.getDeviceStorage("music");
-	console.log(storage);
+	var storage;
 
-	var request = storage.get(name);
+	if (episode.type == "video/mp4") {
+		storage = navigator.getDeviceStorage("videos");
+	} else {
+		storage = navigator.getDeviceStorage("music");
+	}
+
+	var request = storage.get(episode.localUrl);
 
 	request.onsuccess = function () {
 		var file = this.result;

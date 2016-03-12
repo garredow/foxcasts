@@ -2,7 +2,7 @@
 	"name": "FoxCasts",
 
 	"description": "A fully-featured podcast app for your FirefoxOS device.",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"launch_path": "/index.html",
 	"icons": {
 		"256": "/assets/icon-256.png",
@@ -31,6 +31,10 @@
 			"description": "Required to display episode information and playback controls in the notification panel."
 		},
 		"device-storage:music": {
+			"access": "readwrite",
+			"description": "Required to read and write podcasts episodes."
+		},
+		"device-storage:videos": {
 			"access": "readwrite",
 			"description": "Required to read and write podcasts episodes."
 		},

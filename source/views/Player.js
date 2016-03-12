@@ -88,7 +88,7 @@ enyo.kind({
 		if (this.episode.downloaded == "true") {
 			this.log("Playing local file.");
 			if (typeof this.episode.localUrl == "string") {
-				StorageManager.get(this, this.episode.localUrl);
+				StorageManager.get(this, this.episode);
 			} else {
 				// Handle old storage method (blob)
 				this.startEpisode(this.episode.localUrl);
