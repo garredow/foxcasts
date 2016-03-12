@@ -31,3 +31,7 @@ Running the command below will build the app and package it as an ipk. The ipk f
 If you want to build the app and also send it to the emulator, use this command instead. The ipk will be sent to /media/internal.
     
     tools/deploy.sh --luneos-deploy
+
+Build and install right to a LuneOS device over adb.
+
+    tools/deploy.sh --luneos-install
